@@ -44,6 +44,9 @@ dependencies:
   timezone: ^0.11.1
   intl: ^0.20.3
   url_launcher: ^6.3.2
+  flutter_animate: ^4.5.2
+  flutter_svg: ^2.3.0
+  flutter_lucide: ^1.41.0
 
 dev_dependencies:
   flutter_test:
@@ -57,6 +60,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   fake_cloud_firestore: ^4.2.0
   firebase_auth_mocks: ^0.15.2
+  flutter_launcher_icons: ^0.14.4
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -107,3 +111,9 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  image_path: "assets/branding/subly_icon_1024.png"
+  android: true
+  adaptive_icon_background: "#0A0A0C"
+  adaptive_icon_foreground: "assets/branding/subly_icon_foreground_1024.png"

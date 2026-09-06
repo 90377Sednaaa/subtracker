@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/auth/logic/auth_controller.dart';
 import 'package:subtracker/features/subscriptions/logic/subscriptions_provider.dart';
+import 'hero_spend_header.dart';
+import 'renewal_strip.dart';
 import 'subscription_card.dart';
-import 'totals_header.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -44,11 +46,28 @@ class DashboardScreen extends ConsumerWidget {
             ? const _EmptyState()
             : ListView(
                 children: [
-                  TotalsHeader(totals: ref.watch(totalsProvider)),
+                  HeroSpendHeader(
+                    totals: ref.watch(totalsProvider),
+                    subCount: list.where((s) => s.active).length,
+                    now: DateTime.now(),
+                  ),
+                  RenewalStrip(
+                    upcoming: ref.watch(next7DaysProvider),
+                    now: DateTime.now(),
+                  ),
+                  const SizedBox(height: SublySpace.s8),
                   for (final s in list)
-                    SubscriptionCard(
-                      subscription: s,
-                      dateFormat: DateFormat.yMMMd(),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        SublySpace.screenMargin,
+                        SublySpace.s8,
+                        SublySpace.screenMargin,
+                        SublySpace.s8,
+                      ),
+                      child: SubscriptionCard(
+                        subscription: s,
+                        dateFormat: DateFormat.yMMMd(),
+                      ),
                     ),
                 ],
               ),

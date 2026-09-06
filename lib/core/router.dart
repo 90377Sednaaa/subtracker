@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/auth/logic/auth_controller.dart';
+import 'package:subtracker/features/auth/ui/sign_in_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier(0);
@@ -26,8 +27,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/signin',
-        pageBuilder: (_, _) => const NoTransitionPage(
-            child: SizedBox.shrink(key: Key('signin-screen'))),
+        pageBuilder: (_, _) => const NoTransitionPage(child: SignInScreen()),
       ),
       GoRoute(
         path: '/',

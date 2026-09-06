@@ -42,6 +42,11 @@ class SubscriptionRepository {
 
   Future<void> delete(String id) => _subs.doc(id).delete();
 
+  Future<Subscription?> get(String id) async {
+    final snap = await _subs.doc(id).get();
+    return snap.exists ? Subscription.fromMap(snap.id, snap.data()!) : null;
+  }
+
   Future<void> _guardLimit() async {
     final user = await _db.collection('users').doc(_uid).get();
     if (user.data()?['premium'] == true) return;

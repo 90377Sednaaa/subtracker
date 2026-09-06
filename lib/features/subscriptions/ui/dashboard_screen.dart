@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -56,7 +57,7 @@ class DashboardScreen extends ConsumerWidget {
                     now: DateTime.now(),
                   ),
                   const SizedBox(height: SublySpace.s8),
-                  for (final s in list)
+                  for (var i = 0; i < list.length; i++)
                     Padding(
                       padding: const EdgeInsets.fromLTRB(
                         SublySpace.screenMargin,
@@ -65,9 +66,20 @@ class DashboardScreen extends ConsumerWidget {
                         SublySpace.s8,
                       ),
                       child: SubscriptionCard(
-                        subscription: s,
+                        subscription: list[i],
                         dateFormat: DateFormat.yMMMd(),
-                      ),
+                      )
+                          .animate(
+                            delay: (SublyMotion.stagger.inMilliseconds * i)
+                                .ms,
+                          )
+                          .fade(duration: SublyMotion.durBase)
+                          .slideY(
+                            begin: 0.04,
+                            end: 0,
+                            duration: SublyMotion.durBase,
+                            curve: SublyMotion.curveStandard,
+                          ),
                     ),
                 ],
               ),

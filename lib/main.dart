@@ -7,6 +7,7 @@ import 'package:subtracker/core/router.dart';
 import 'package:subtracker/core/notifications/local_notification_service.dart';
 import 'package:subtracker/features/auth/data/auth_repository.dart';
 import 'package:subtracker/features/auth/logic/auth_controller.dart';
+import 'package:subtracker/features/directory/data/cancellation_link_repository.dart';
 import 'package:subtracker/features/profile/data/user_profile_repository.dart';
 import 'package:subtracker/features/subscriptions/data/subscription_repository.dart';
 import 'package:subtracker/features/subscriptions/logic/subscription_controller.dart';
@@ -22,6 +23,8 @@ Future<void> main() async {
           FirebaseAuthGoogleRepository(FirebaseAuth.instance)),
       reminderSchedulerProvider
           .overrideWithValue(LocalNotificationService.instance),
+      cancellationLinkRepositoryProvider.overrideWith(
+          (ref) => CancellationLinkRepository(FirebaseFirestore.instance)),
       // Lazy: only read after the router redirect guarantees a signed-in user.
       profileRepositoryProvider.overrideWith((ref) => UserProfileRepository(
           FirebaseFirestore.instance, FirebaseAuth.instance.currentUser!.uid)),

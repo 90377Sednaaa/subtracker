@@ -21,7 +21,13 @@ class DashboardScreen extends ConsumerWidget {
     final subs = ref.watch(subscriptionsStreamProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Subly')),
+      appBar: AppBar(title: const Text('Subly'), actions: [
+        IconButton(
+          icon: const Icon(Icons.link),
+          tooltip: 'Cancellation directory',
+          onPressed: () => context.push('/directory'),
+        ),
+      ]),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/subs/new'),
         child: const Icon(Icons.add),

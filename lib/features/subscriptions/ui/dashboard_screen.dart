@@ -27,6 +27,11 @@ class DashboardScreen extends ConsumerWidget {
           tooltip: 'Cancellation directory',
           onPressed: () => context.push('/directory'),
         ),
+        IconButton(
+          icon: const Icon(Icons.settings),
+          tooltip: 'Settings',
+          onPressed: () => context.push('/settings'),
+        ),
       ]),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/subs/new'),

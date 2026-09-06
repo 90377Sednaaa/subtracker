@@ -37,3 +37,6 @@ class UserProfileRepository {
         SetOptions(merge: true),
       );
 }
+
+final profileStreamProvider = StreamProvider<UserProfile?>(
+    (ref) => ref.watch(profileRepositoryProvider).watch());

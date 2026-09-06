@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:subtracker/features/subscriptions/domain/subscription.dart';
 
@@ -14,6 +15,7 @@ class SubscriptionCard extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       child: ListTile(
+        onTap: () => context.push('/subs/${subscription.id}/edit'),
         title: Text(subscription.name),
         subtitle: Text(subscription.trialing
             ? 'Trial ends ${dateFormat.format(subscription.trialEndsAt!)}'

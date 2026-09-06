@@ -1,0 +1,59 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:subtracker/features/auth/logic/auth_controller.dart';
+import 'package:subtracker/features/premium/logic/csv_export.dart';
+import 'package:subtracker/features/profile/data/user_profile_repository.dart';
+import 'package:subtracker/features/subscriptions/logic/subscriptions_provider.dart';
+
+class SettingsScreen extends ConsumerWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profile = ref.watch(profileStreamProvider);
+    final isPremium = profile.value?.premium ?? false;
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Settings')),
+      body: ListView(
+        children: [
+          ListTile(
+            title: Text(isPremium
+                ? 'Premium active'
+                : 'Free plan (5 subscription limit)'),
+            subtitle: Text(profile.value?.email ?? ''),
+          ),
+          if (!isPremium)
+            ListTile(
+              title: const Text('Upgrade to Premium'),
+              onTap: () => context.push('/paywall'),
+            ),
+          if (isPremium)
+            ListTile(
+              title: const Text('Export subscriptions (CSV)'),
+              onTap: () {
+                // Read the already-loaded stream state — .future would hang
+                // on Firestore's never-completing snapshots stream (riverpod 3).
+                final subs = ref.read(subscriptionsStreamProvider).value;
+                if (subs == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Still loading, try again')));
+                  return;
+                }
+                Clipboard.setData(
+                    ClipboardData(text: subscriptionsToCsv(subs)));
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('CSV copied to clipboard')));
+              },
+            ),
+          ListTile(
+            title: const Text('Sign out'),
+            onTap: () => ref.read(authRepositoryProvider).signOut(),
+          ),
+        ],
+      ),
+    );
+  }
+}

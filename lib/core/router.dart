@@ -5,6 +5,8 @@ import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/auth/logic/auth_controller.dart';
 import 'package:subtracker/features/auth/ui/sign_in_screen.dart';
 import 'package:subtracker/features/directory/ui/directory_screen.dart';
+import 'package:subtracker/features/premium/ui/paywall_screen.dart';
+import 'package:subtracker/features/settings/ui/settings_screen.dart';
 import 'package:subtracker/features/subscriptions/logic/subscriptions_provider.dart';
 import 'package:subtracker/features/subscriptions/ui/dashboard_screen.dart';
 import 'package:subtracker/features/subscriptions/ui/subscription_form_screen.dart';
@@ -45,8 +47,17 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/paywall',
-        pageBuilder: (_, _) => NoTransitionPage(
-          child: Scaffold(appBar: AppBar(title: const Text('Premium'))),
+        pageBuilder: (_, _) => const NoTransitionPage(child: PaywallScreen()),
+      ),
+      GoRoute(
+        path: '/settings',
+        pageBuilder: (_, _) => const NoTransitionPage(child: SettingsScreen()),
+      ),
+      GoRoute(
+        path: '/subs/:id/edit',
+        pageBuilder: (_, state) => NoTransitionPage(
+          child: SubscriptionFormScreen(
+              existingId: state.pathParameters['id']),
         ),
       ),
       GoRoute(

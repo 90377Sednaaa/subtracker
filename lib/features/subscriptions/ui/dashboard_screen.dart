@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:subtracker/features/auth/logic/auth_controller.dart';
 import 'package:subtracker/features/subscriptions/logic/subscriptions_provider.dart';
 import 'subscription_card.dart';
 import 'totals_header.dart';
@@ -11,6 +12,12 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final auth = ref.watch(firebaseAuthProvider);
+    // The router inflates this route for one frame before the first auth
+    // event lands; never touch repositories until a signed-in user exists.
+    if (!auth.hasValue || auth.value == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     final subs = ref.watch(subscriptionsStreamProvider);
 
     return Scaffold(

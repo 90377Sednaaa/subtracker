@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/auth/logic/auth_controller.dart';
 import 'package:subtracker/features/auth/ui/sign_in_screen.dart';
+import 'package:subtracker/features/subscriptions/logic/subscriptions_provider.dart';
 import 'package:subtracker/features/subscriptions/ui/dashboard_screen.dart';
 import 'package:subtracker/features/subscriptions/ui/subscription_form_screen.dart';
 
@@ -57,6 +58,8 @@ class SubtrackerApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // App-wide reminder reconciliation (see provider docs).
+    ref.watch(reminderSyncProvider);
     return MaterialApp.router(
       title: 'Subly',
       theme: ref.watch(appThemeProvider),

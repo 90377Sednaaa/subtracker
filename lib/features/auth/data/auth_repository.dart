@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:subtracker/core/notifications/local_notification_service.dart';
 
 abstract class AuthRepository {
   Stream<User?> get authStateChanges;
@@ -28,6 +29,8 @@ class FirebaseAuthGoogleRepository implements AuthRepository {
     }
     await _auth
         .signInWithCredential(GoogleAuthProvider.credential(idToken: idToken));
+    // Android 13+ needs a runtime opt-in; ask once right after sign-in.
+    await LocalNotificationService.instance.requestPermissions();
   }
 
   @override

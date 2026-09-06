@@ -4,7 +4,7 @@
 
 `subtracker` (working title **Subly**) — an Android-only subscription tracker with Google Sign-In, a Firestore-backed dashboard, on-device trial/renewal reminders, a seeded cancellation-links directory, and a simulated premium paywall.
 
-**Current state:** the repo still contains the stock Flutter template (default counter app in `lib/main.dart`, default `widget_test.dart`). The real product is defined but **not yet implemented** — follow the task-by-task plan in `docs/superpowers/plans/2026-09-06-subly-mvp.md`. Read that plan before building any feature; it contains the locked decisions, Firestore data model, file layout, and per-task tests. (`docs/` is currently untracked.)
+**Current state:** the MVP plan has been implemented (see git log on `feat/subly-mvp`); the design plan in `docs/superpowers/plans/2026-09-06-subly-mvp.md`. Read that plan before building any feature; it contains the locked decisions, Firestore data model, file layout, and per-task tests. (`docs/` is currently untracked.)
 
 ## Commands
 

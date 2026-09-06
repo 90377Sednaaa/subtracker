@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/auth/logic/auth_controller.dart';
 import 'package:subtracker/features/premium/logic/csv_export.dart';
 import 'package:subtracker/features/profile/data/user_profile_repository.dart';
@@ -48,6 +49,13 @@ class SettingsScreen extends ConsumerWidget {
                     const SnackBar(content: Text('CSV copied to clipboard')));
               },
             ),
+          SwitchListTile(
+            title: const Text('Dark theme'),
+            value: ref.watch(themeModeProvider) == ThemeMode.dark,
+            onChanged: (dark) => ref
+                .read(themeModeProvider.notifier)
+                .set(dark ? ThemeMode.dark : ThemeMode.light),
+          ),
           ListTile(
             title: const Text('Sign out'),
             onTap: () => ref.read(authRepositoryProvider).signOut(),

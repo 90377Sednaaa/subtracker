@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/auth/logic/auth_controller.dart';
-import 'package:subtracker/features/auth/ui/sign_in_screen.dart';import 'package:subtracker/features/directory/ui/directory_screen.dart';
+import 'package:subtracker/features/auth/ui/sign_in_screen.dart';
+import 'package:subtracker/features/directory/ui/directory_screen.dart';
 import 'package:subtracker/features/premium/ui/paywall_screen.dart';
 import 'package:subtracker/features/settings/ui/settings_screen.dart';
 import 'package:subtracker/features/subscriptions/logic/subscriptions_provider.dart';
@@ -79,7 +80,9 @@ class SubtrackerApp extends ConsumerWidget {
     ref.watch(profileBootstrapProvider);
     return MaterialApp.router(
       title: 'Subly',
-      theme: ref.watch(appThemeProvider),
+      theme: buildSublyTheme(Brightness.light),
+      darkTheme: buildSublyTheme(Brightness.dark),
+      themeMode: ref.watch(themeModeProvider),
       routerConfig: ref.watch(routerProvider),
     );
   }

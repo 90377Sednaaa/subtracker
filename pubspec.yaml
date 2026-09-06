@@ -57,7 +57,6 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   fake_cloud_firestore: ^4.2.0
   firebase_auth_mocks: ^0.15.2
-
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -68,6 +67,15 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  # Bundled variable fonts (offline-safe; weights via fontVariations).
+  fonts:
+    - family: SpaceGrotesk
+      fonts:
+        - asset: assets/fonts/space_grotesk_variable.ttf
+    - family: InterSubly
+      fonts:
+        - asset: assets/fonts/inter_variable.ttf
 
   # Brand assets (Subly logo mark). The SVG is the source of truth;
   # raster variants for the launcher icon etc. come in the design phase.

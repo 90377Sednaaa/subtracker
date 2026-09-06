@@ -2,6 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:subtracker/core/notifications/local_notification_service.dart';
 
+/// The project's OAuth 2.0 **Web client ID** — required by google_sign_in v7
+/// on Android to mint an idToken. One-time setup:
+///   Firebase console → Authentication → (Get started, enable Google) →
+///   Sign-in method → Google → Web SDK configuration → Web client ID.
+/// Paste the full `….apps.googleusercontent.com` value below.
+const String kGoogleServerClientId = '';
+
 abstract class AuthRepository {
   Stream<User?> get authStateChanges;
   User? currentUser();
@@ -12,6 +19,7 @@ abstract class AuthRepository {
 class FirebaseAuthGoogleRepository implements AuthRepository {
   FirebaseAuthGoogleRepository(this._auth);
   final FirebaseAuth _auth;
+  bool _googleInitialized = false;
 
   @override
   Stream<User?> get authStateChanges => _auth.authStateChanges();
@@ -21,8 +29,18 @@ class FirebaseAuthGoogleRepository implements AuthRepository {
 
   @override
   Future<void> signInWithGoogle() async {
-    final google = GoogleSignIn.instance;
-    final account = await google.authenticate();
+    if (!_googleInitialized) {
+      if (kGoogleServerClientId.isEmpty) {
+        throw StateError(
+            'Google sign-in is not configured: paste the Web client ID into '
+            'kGoogleServerClientId (lib/features/auth/data/auth_repository.dart). '
+            'See Firebase console → Authentication → Sign-in method → Google.');
+      }
+      await GoogleSignIn.instance
+          .initialize(serverClientId: kGoogleServerClientId);
+      _googleInitialized = true;
+    }
+    final account = await GoogleSignIn.instance.authenticate();
     final idToken = account.authentication.idToken;
     if (idToken == null) {
       throw StateError('Google sign-in returned no idToken');

@@ -37,8 +37,19 @@ class SignInScreen extends ConsumerWidget {
               FilledButton(
                 key: const Key('google-sign-in'),
                 style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(56)),
-                onPressed: () =>
-                    ref.read(authRepositoryProvider).signInWithGoogle(),
+                onPressed: () async {
+                  final messenger = ScaffoldMessenger.of(context);
+                  try {
+                    await ref.read(authRepositoryProvider).signInWithGoogle();
+                  } catch (e) {
+                    // Config or account errors surface here instead of
+                    // crashing — the message says what to fix.
+                    messenger.showSnackBar(SnackBar(
+                      content: Text('Sign-in failed: $e'),
+                      duration: const Duration(seconds: 6),
+                    ));
+                  }
+                },
                 child: const Text('Continue with Google'),
               ),
               const SizedBox(height: SublySpace.s32),

@@ -63,7 +63,7 @@ lib/
 - `StateProvider` no longer exists — use `NotifierProvider` with a `Notifier`.
 - `Switch` uses `activeThumbColor` (not the deprecated `activeColor`); AppBar/Card themes use the `…ThemeData` classes.
 - `flutter_local_notifications` v22 takes named args (`initialize(settings:…)`, `zonedSchedule(id:…)`); it requires core-library desugaring (already enabled in `android/app/build.gradle.kts`).
-- `google_sign_in` v7: `GoogleSignIn.instance.authenticate()` + `account.authentication.idToken`, then `FirebaseAuth.signInWithCredential(GoogleAuthProvider.credential(idToken: ...))`. Keep the `AuthRepository` contract fixed.
+- `google_sign_in` v7: `GoogleSignIn.instance.initialize(serverClientId: kGoogleServerClientId)` MUST run before `authenticate()` — on Android the Web client ID is mandatory for minting an idToken. The ID lives in `kGoogleServerClientId` (auth_repository.dart); it appears in the console only after Authentication is provisioned. Then `FirebaseAuth.signInWithCredential(GoogleAuthProvider.credential(idToken: ...))`. Keep the `AuthRepository` contract fixed.
 - Widget tests: `RenderRepaintBoundary.toImage` must run inside `tester.runAsync` (fake-async hangs it); lazily-built ListView children need `scrollUntilVisible`, not `ensureVisible`.
 
 ## Locked constraints (do not violate)

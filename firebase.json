@@ -1,1 +1,24 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"subly-dev","appId":"1:187849793488:android:add8f0c767dd3116d623d5","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"subly-dev","configurations":{"android":"1:187849793488:android:add8f0c767dd3116d623d5"}}}}}}
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "subly-dev",
+          "appId": "1:187849793488:android:add8f0c767dd3116d623d5",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "subly-dev",
+          "configurations": {
+            "android": "1:187849793488:android:add8f0c767dd3116d623d5"
+          }
+        }
+      }
+    }
+  }
+}

@@ -36,6 +36,19 @@ const categoryColorTable = <String, int>{
 
 const otherColor = Color(0xFF8C8C8C);
 
+/// Resolves the brand color from a bare name: name match → category
+/// keyword → 'Other'.
+Color brandColorFromName(String name) {
+  final lowered = name.toLowerCase();
+  for (final entry in brandColorTable.entries) {
+    if (lowered.contains(entry.key)) return Color(entry.value);
+  }
+  for (final entry in categoryColorTable.entries) {
+    if (lowered.contains(entry.key)) return Color(entry.value);
+  }
+  return otherColor;
+}
+
 /// Resolves the brand color for a subscription: manual override →
 /// name match → category → 'Other'.
 Color brandColorFor(Subscription sub) {
@@ -44,15 +57,7 @@ Color brandColorFor(Subscription sub) {
     final hex = override.replaceFirst('#', '');
     return Color(0xFF000000 | int.parse(hex, radix: 16));
   }
-  final name = sub.name.toLowerCase();
-  for (final entry in brandColorTable.entries) {
-    if (name.contains(entry.key)) return Color(entry.value);
-  }
-  // Category is not stored on the document; infer from name keywords.
-  for (final entry in categoryColorTable.entries) {
-    if (name.contains(entry.key)) return Color(entry.value);
-  }
-  return otherColor;
+  return brandColorFromName(sub.name);
 }
 
 /// The swatch row in the form: 'Auto' first (null override), then brands.

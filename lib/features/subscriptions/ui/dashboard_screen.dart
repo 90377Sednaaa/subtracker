@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -26,19 +27,19 @@ class DashboardScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Subly'), actions: [
         IconButton(
-          icon: const Icon(Icons.link),
+          icon: const Icon(LucideIcons.link_2),
           tooltip: 'Cancellation directory',
           onPressed: () => context.push('/directory'),
         ),
         IconButton(
-          icon: const Icon(Icons.settings),
+          icon: const Icon(LucideIcons.settings_2),
           tooltip: 'Settings',
           onPressed: () => context.push('/settings'),
         ),
       ]),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/subs/new'),
-        child: const Icon(Icons.add),
+        child: const Icon(LucideIcons.plus),
       ),
       body: subs.when(
         loading: () => const Center(child: CircularProgressIndicator()),

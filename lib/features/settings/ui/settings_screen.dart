@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:subtracker/core/theme.dart';
@@ -13,6 +14,7 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.sublyColors;
     final profile = ref.watch(profileStreamProvider);
     final isPremium = profile.value?.premium ?? false;
 
@@ -28,11 +30,15 @@ class SettingsScreen extends ConsumerWidget {
           ),
           if (!isPremium)
             ListTile(
+              leading:
+                  Icon(LucideIcons.gem, size: 20, color: colors.inkSecondary),
               title: const Text('Upgrade to Premium'),
               onTap: () => context.push('/paywall'),
             ),
           if (isPremium)
             ListTile(
+              leading: Icon(LucideIcons.file_down,
+                  size: 20, color: colors.inkSecondary),
               title: const Text('Export subscriptions (CSV)'),
               onTap: () {
                 // Read the already-loaded stream state — .future would hang
@@ -57,6 +63,8 @@ class SettingsScreen extends ConsumerWidget {
                 .set(dark ? ThemeMode.dark : ThemeMode.light),
           ),
           ListTile(
+            leading:
+                Icon(LucideIcons.log_out, size: 20, color: colors.inkSecondary),
             title: const Text('Sign out'),
             onTap: () => ref.read(authRepositoryProvider).signOut(),
           ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:subtracker/core/brand/brand_colors.dart';
+import 'package:subtracker/core/brand/brand_icons.dart';
 import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/directory/logic/directory_provider.dart';
 
@@ -27,15 +28,20 @@ class DirectoryScreen extends ConsumerWidget {
             return ListTile(
               contentPadding: const EdgeInsets.symmetric(
                   horizontal: SublySpace.screenMargin),
-              leading: Container(
-                width: 12,
-                height: 12,
-                margin: const EdgeInsets.only(top: 4),
-                decoration: BoxDecoration(
-                  color: brandColorFromName(link.name),
-                  shape: BoxShape.circle,
-                ),
-              ),
+              leading: brandIconAssetFromName(link.name) != null
+                  ? BrandGlyphTile(
+                      asset: brandIconAssetFromName(link.name),
+                      color: brandColorFromName(link.name),
+                    )
+                  : Container(
+                      width: 12,
+                      height: 12,
+                      margin: const EdgeInsets.only(top: 4),
+                      decoration: BoxDecoration(
+                        color: brandColorFromName(link.name),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
               title: Text(link.name,
                   style: SublyTypography.titleM
                       .copyWith(fontSize: 16, color: colors.inkPrimary)),

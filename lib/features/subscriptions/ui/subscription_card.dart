@@ -5,7 +5,6 @@ import 'package:subtracker/core/brand/brand.dart';
 import 'package:subtracker/core/brand/brand_colors.dart';
 import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/subscriptions/domain/subscription.dart';
-
 /// The ledger row: brand dot, name + renewal line, right-aligned tabular
 /// cost. Geometry is asserted by test/ui/ledger_card_test.dart — change
 /// tokens, not magic numbers here.
@@ -38,7 +37,10 @@ class SubscriptionCard extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
-                    child: BrandDot(color: brandColorFor(subscription)),
+                    child: BrandTile(
+                        name: subscription.name,
+                        color: brandColorFor(subscription),
+                        size: 22),
                   ),
                   const SizedBox(width: SublySpace.s12),
                   Expanded(

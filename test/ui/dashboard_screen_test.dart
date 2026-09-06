@@ -48,7 +48,8 @@ Future<ProviderContainer> _container(FakeFirebaseFirestore db) async {
 }
 
 void main() {
-  testWidgets('renders subscriptions and per-currency totals', (tester) async {
+  testWidgets('renders subscriptions and per-currency totals in ledger view',
+      (tester) async {
     final container = await _container(FakeFirebaseFirestore());
     await tester.pumpWidget(UncontrolledProviderScope(
       container: container,
@@ -56,8 +57,25 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
+    // Calendar is the default view; flip to the ledger to see the cards.
+    await tester.tap(find.text('Ledger'));
+    await tester.pumpAndSettle();
+
     expect(find.text('Netflix'), findsOneWidget);
     expect(find.textContaining(r'$15.49'), findsWidgets);
+  });
+
+  testWidgets('calendar is the default view with the month grid',
+      (tester) async {
+    final container = await _container(FakeFirebaseFirestore());
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: const MaterialApp(home: DashboardScreen()),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('calendar-view')), findsOneWidget);
+    expect(find.text('Ledger'), findsOneWidget);
   });
 
   testWidgets('empty state shown with no subscriptions', (tester) async {

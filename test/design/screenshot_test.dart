@@ -11,13 +11,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/auth/data/auth_repository.dart';
 import 'package:subtracker/features/auth/logic/auth_controller.dart';
+import 'package:subtracker/features/directory/data/cancellation_link_repository.dart';
+import 'package:subtracker/features/directory/ui/directory_screen.dart';
 import 'package:subtracker/features/subscriptions/data/subscription_repository.dart';
 import 'package:subtracker/features/subscriptions/domain/billing_cycle.dart';
 import 'package:subtracker/features/subscriptions/domain/subscription_draft.dart';
 import 'package:subtracker/features/subscriptions/ui/dashboard_screen.dart';
 
-/// Visual QA: renders the real dashboard in both themes to PNGs under
-/// build/design-screenshots/ so layout and alignment can be reviewed by eye.
+/// Visual QA: renders the real dashboard and the cancellation directory in
+/// both themes to PNGs under build/design-screenshots/ so layout and
+/// alignment can be reviewed by eye.
 /// Run: flutter test test/design/screenshot_test.dart
 class _SignedInAuthRepository implements AuthRepository {
   static final _user = MockUser(uid: 'u1', email: 'a@b.c');
@@ -90,6 +93,66 @@ void main() {
       });
       expect(
           File('build/design-screenshots/dashboard-${brightness.name}.png')
+              .lengthSync(),
+          greaterThan(5000));
+    });
+
+    testWidgets('directory screenshot — ${brightness.name}', (tester) async {
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(412, 892); // typical Android
+      addTearDown(tester.view.reset);
+
+      const seeded = [
+        ('Netflix', 'Streaming', 'Account → Cancel plan'),
+        ('Spotify', 'Music', 'Account → Change or cancel'),
+        ('Disney+', 'Streaming', 'Account → Subscription'),
+        ('YouTube Premium', 'Streaming', 'Paid memberships → Manage'),
+        ('Amazon Prime', 'Shopping', 'Prime membership → End membership'),
+        ('Microsoft 365', 'Productivity', 'Services & subscriptions → Cancel'),
+        ('Adobe Creative Cloud', 'Productivity', 'Plans → Manage plan'),
+        ('Xbox Game Pass', 'Gaming', 'Subscriptions → Manage'),
+        ('Dropbox', 'Storage', 'Plan → Cancel plan'),
+        ('Canva Pro', 'Design', 'Billing & plans → Cancel'),
+        ('Audible', 'Books', 'Membership → Cancel'),
+        ('iCloud+', 'Storage', 'iCloud → Downgrade options'),
+      ];
+      final db = FakeFirebaseFirestore();
+      for (var i = 0; i < seeded.length; i++) {
+        await db.collection('cancellation_links').add({
+          'name': seeded[i].$1,
+          'category': seeded[i].$2,
+          'notes': seeded[i].$3,
+          'cancelUrl': 'https://example.com/cancel',
+          'sortOrder': i,
+        });
+      }
+
+      final key = GlobalKey();
+      await tester.pumpWidget(RepaintBoundary(
+        key: key,
+        child: ProviderScope(
+          overrides: [
+            cancellationLinkRepositoryProvider
+                .overrideWithValue(CancellationLinkRepository(db)),
+          ],
+          child: SubtrackerThemeApp(
+              brightness: brightness, child: const DirectoryScreen()),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      final boundary =
+          key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+      await tester.runAsync(() async {
+        final image = await boundary.toImage(pixelRatio: 1.0);
+        final bytes =
+            await image.toByteData(format: ui.ImageByteFormat.png);
+        Directory('build/design-screenshots').createSync(recursive: true);
+        File('build/design-screenshots/directory-${brightness.name}.png')
+            .writeAsBytesSync(bytes!.buffer.asUint8List());
+      });
+      expect(
+          File('build/design-screenshots/directory-${brightness.name}.png')
               .lengthSync(),
           greaterThan(5000));
     });

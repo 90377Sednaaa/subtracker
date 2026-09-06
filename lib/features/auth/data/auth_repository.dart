@@ -7,7 +7,8 @@ import 'package:subtracker/core/notifications/local_notification_service.dart';
 ///   Firebase console → Authentication → (Get started, enable Google) →
 ///   Sign-in method → Google → Web SDK configuration → Web client ID.
 /// Paste the full `….apps.googleusercontent.com` value below.
-const String kGoogleServerClientId = '';
+const String kGoogleServerClientId =
+    '187849793488-c8kdltd93iqnc1l3q22t3nsfis9rvr2r.apps.googleusercontent.com';
 
 abstract class AuthRepository {
   Stream<User?> get authStateChanges;
@@ -32,12 +33,14 @@ class FirebaseAuthGoogleRepository implements AuthRepository {
     if (!_googleInitialized) {
       if (kGoogleServerClientId.isEmpty) {
         throw StateError(
-            'Google sign-in is not configured: paste the Web client ID into '
-            'kGoogleServerClientId (lib/features/auth/data/auth_repository.dart). '
-            'See Firebase console → Authentication → Sign-in method → Google.');
+          'Google sign-in is not configured: paste the Web client ID into '
+          'kGoogleServerClientId (lib/features/auth/data/auth_repository.dart). '
+          'See Firebase console → Authentication → Sign-in method → Google.',
+        );
       }
-      await GoogleSignIn.instance
-          .initialize(serverClientId: kGoogleServerClientId);
+      await GoogleSignIn.instance.initialize(
+        serverClientId: kGoogleServerClientId,
+      );
       _googleInitialized = true;
     }
     final account = await GoogleSignIn.instance.authenticate();
@@ -45,8 +48,9 @@ class FirebaseAuthGoogleRepository implements AuthRepository {
     if (idToken == null) {
       throw StateError('Google sign-in returned no idToken');
     }
-    await _auth
-        .signInWithCredential(GoogleAuthProvider.credential(idToken: idToken));
+    await _auth.signInWithCredential(
+      GoogleAuthProvider.credential(idToken: idToken),
+    );
     // Android 13+ needs a runtime opt-in; ask once right after sign-in.
     await LocalNotificationService.instance.requestPermissions();
   }

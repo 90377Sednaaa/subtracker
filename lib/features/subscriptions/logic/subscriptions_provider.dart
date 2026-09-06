@@ -39,6 +39,20 @@ final next7DaysProvider = Provider<List<Subscription>>((ref) {
     ..sort((a, b) => a.nextChargeDate.compareTo(b.nextChargeDate));
 });
 
+/// Which dashboard view is showing. Calendar is the default: renewals at a
+/// glance, ledger one tap away.
+enum DashboardView { calendar, ledger }
+
+class DashboardViewController extends Notifier<DashboardView> {
+  @override
+  DashboardView build() => DashboardView.calendar;
+
+  void set(DashboardView v) => state = v;
+}
+
+final dashboardViewProvider = NotifierProvider<DashboardViewController, DashboardView>(
+    DashboardViewController.new);
+
 /// App-wide reminder sync: every time the subscription list changes (or is
 /// first loaded), reconcile on-device reminders with the stored data.
 /// Watching this provider from the app root keeps reminders in sync without

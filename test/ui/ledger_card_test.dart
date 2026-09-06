@@ -45,7 +45,7 @@ void main() {
         reason: 'cost must sit flush against the card content right edge');
   });
 
-  testWidgets('CARD GEOMETRY: name starts after dot + 12dp gutter',
+  testWidgets('CARD GEOMETRY: name starts after tile + 12dp gutter',
       (tester) async {
     await tester.pumpWidget(MaterialApp(
       theme: buildSublyTheme(Brightness.dark),
@@ -57,14 +57,13 @@ void main() {
         ),
       ),
     ));
-    final dot = tester.getRect(find.byType(BrandDot));
+    final tile = tester.getRect(find.byType(BrandTile));
     final name = tester.getRect(find.text('Netflix'));
-    expect(name.left - dot.right, closeTo(12, 1.5),
-        reason: 'name must follow the brand dot with a 12dp gutter');
-    // The dot rides the name's visual line: its center stays inside the
-    // name's text band (not floating between the two lines).
-    expect(dot.centerLeft.dy, greaterThanOrEqualTo(name.top));
-    expect(dot.centerLeft.dy, lessThanOrEqualTo(name.bottom));
+    final card = tester.getRect(find.byType(Card));
+    expect(name.left - tile.right, closeTo(12, 1.5),
+        reason: 'name must follow the brand tile with a 12dp gutter');
+    // The lettermark is vertically centered on the ledger row.
+    expect((tile.centerLeft.dy - card.centerLeft.dy).abs(), lessThan(2.0));
   });
 
   testWidgets('CARD GEOMETRY: long names ellipsize instead of pushing cost',

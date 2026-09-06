@@ -42,3 +42,50 @@ class BrandDot extends StatelessWidget {
     );
   }
 }
+
+/// The service's lettermark: a rounded square in the brand color with the
+/// service's initial (the N/tv style of the reference apps). Used in the
+/// renewal calendar and ledger rows.
+class BrandTile extends StatelessWidget {
+  const BrandTile({
+    super.key,
+    required this.name,
+    required this.color,
+    this.size = 22,
+  });
+
+  final String name;
+  final Color color;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors =
+        Theme.of(context).extension<SublyColors>() ?? SublyColors.dark;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(size * 0.3),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        brandInitial(name),
+        style: TextStyle(
+          color: colors.inkInverse,
+          fontSize: size * 0.52,
+          height: 1.0,
+          fontWeight: FontWeight.w700,
+          fontFamily: SublyTypography.displayFamily,
+        ),
+      ),
+    );
+  }
+}
+
+/// The lettermark glyph: first character, uppercased ('?' when empty).
+String brandInitial(String name) {
+  final t = name.trim();
+  return t.isEmpty ? '?' : t[0].toUpperCase();
+}

@@ -5,6 +5,7 @@ import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/auth/logic/auth_controller.dart';
 import 'package:subtracker/features/auth/ui/sign_in_screen.dart';
 import 'package:subtracker/features/subscriptions/ui/dashboard_screen.dart';
+import 'package:subtracker/features/subscriptions/ui/subscription_form_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier(0);
@@ -37,9 +38,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/subs/new',
+        pageBuilder: (_, _) => const NoTransitionPage(
+            child: SubscriptionFormScreen()),
+      ),
+      GoRoute(
+        path: '/paywall',
         pageBuilder: (_, _) => NoTransitionPage(
-          child: Scaffold(
-              appBar: AppBar(title: const Text('Add subscription'))),
+          child: Scaffold(appBar: AppBar(title: const Text('Premium'))),
         ),
       ),
 

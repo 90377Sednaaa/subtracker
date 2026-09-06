@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/auth/logic/auth_controller.dart';
 import 'package:subtracker/features/auth/ui/sign_in_screen.dart';
+import 'package:subtracker/features/subscriptions/ui/dashboard_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier(0);
@@ -31,8 +32,17 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/',
-        pageBuilder: (_, _) => const NoTransitionPage(child: SizedBox.shrink()),
+        pageBuilder: (_, _) =>
+            const NoTransitionPage(child: DashboardScreen()),
       ),
+      GoRoute(
+        path: '/subs/new',
+        pageBuilder: (_, _) => NoTransitionPage(
+          child: Scaffold(
+              appBar: AppBar(title: const Text('Add subscription'))),
+        ),
+      ),
+
     ],
   );
 });

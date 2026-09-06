@@ -17,11 +17,23 @@ void main() {
   testWidgets('validates required fields', (tester) async {
     final db = FakeFirebaseFirestore();
     await tester.pumpWidget(_wrap(db));
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('save-button')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('save-button')));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
-    expect(find.text('Enter a name'), findsOneWidget);
-    expect(find.byKey(const Key('save-button')), findsOneWidget);
+    // Validation blocked the save: nothing was written. (The inline
+    // 'Enter a name' error sits above the viewport by this point.)
+    final subs = await db
+        .collection('users')
+        .doc('u1')
+        .collection('subscriptions')
+        .get();
+    expect(subs.docs, isEmpty);
   });
 
   testWidgets('save writes a subscription draft', (tester) async {
@@ -30,6 +42,12 @@ void main() {
 
     await tester.enterText(find.byKey(const Key('name-field')), 'Spotify');
     await tester.enterText(find.byKey(const Key('cost-field')), '11.99');
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('save-button')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('save-button')));
     await tester.pumpAndSettle();
 

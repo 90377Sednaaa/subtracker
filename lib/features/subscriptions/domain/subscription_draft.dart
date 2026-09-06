@@ -9,6 +9,7 @@ class SubscriptionDraft {
     required this.nextChargeDate,
     required this.trialEndsAt,
     required this.reminderDaysBefore,
+    this.brandColor,
   });
 
   final String name;
@@ -18,4 +19,7 @@ class SubscriptionDraft {
   final DateTime nextChargeDate;
   final DateTime? trialEndsAt;
   final int reminderDaysBefore;
+
+  /// Manual brand-color override (hex without '#'); null = auto-match.
+  final String? brandColor;
 }

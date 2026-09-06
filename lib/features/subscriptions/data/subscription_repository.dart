@@ -67,6 +67,7 @@ class SubscriptionRepository {
             : Timestamp.fromDate(d.trialEndsAt!),
         'reminderDaysBefore': d.reminderDaysBefore,
         'active': true,
+        'brandColor': d.brandColor,
         'updatedAt': FieldValue.serverTimestamp(),
       };
 }

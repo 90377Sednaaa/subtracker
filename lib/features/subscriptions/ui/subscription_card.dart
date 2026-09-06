@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:subtracker/core/brand/brand.dart';
+import 'package:subtracker/core/brand/brand_colors.dart';
 import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/subscriptions/domain/subscription.dart';
 
@@ -13,12 +14,10 @@ class SubscriptionCard extends StatelessWidget {
     super.key,
     required this.subscription,
     required this.dateFormat,
-    this.brandColor = const Color(0xFF8C8C8C), // 'Other' fallback until D5
   });
 
   final Subscription subscription;
   final DateFormat dateFormat;
-  final Color brandColor;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +38,7 @@ class SubscriptionCard extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
-                    child: BrandDot(color: brandColor),
+                    child: BrandDot(color: brandColorFor(subscription)),
                   ),
                   const SizedBox(width: SublySpace.s12),
                   Expanded(

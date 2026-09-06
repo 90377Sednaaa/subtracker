@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:subtracker/core/brand/brand_colors.dart';
 import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/subscriptions/data/subscription_repository.dart';
 import 'package:subtracker/features/subscriptions/domain/billing_cycle.dart';
@@ -27,6 +28,7 @@ class _SubscriptionFormScreenState
   DateTime _nextCharge = DateTime.now().add(const Duration(days: 30));
   DateTime? _trialEnds;
   int _reminderDays = 3;
+  String? _brandColor;
   bool _loaded = true;
 
   @override
@@ -50,6 +52,7 @@ class _SubscriptionFormScreenState
       _nextCharge = sub.nextChargeDate;
       _trialEnds = sub.trialEndsAt;
       _reminderDays = sub.reminderDaysBefore;
+      _brandColor = sub.brandColor;
       _loaded = true;
     });
   }
@@ -78,6 +81,7 @@ class _SubscriptionFormScreenState
       nextChargeDate: _trialEnds ?? _nextCharge,
       trialEndsAt: _trialEnds,
       reminderDaysBefore: _reminderDays,
+      brandColor: _brandColor,
     );
     try {
       final repo = ref.read(subscriptionRepositoryProvider);
@@ -160,6 +164,44 @@ class _SubscriptionFormScreenState
                         .toList(),
                     onChanged: (c) => setState(() => _currency = c ?? _currency),
                     decoration: const InputDecoration(labelText: 'Currency'),
+                  ),
+                  const SizedBox(height: SublySpace.s16),
+                  Text('Brand color',
+                      style: SublyTypography.label
+                          .copyWith(color: colors.inkTertiary)),
+                  const SizedBox(height: SublySpace.s8),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      for (final choice in swatchChoices)
+                        GestureDetector(
+                          onTap: () => setState(
+                              () => _brandColor = hexToStore(choice.hex)),
+                          child: Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: choice.hex == null
+                                  ? colors.step1
+                                  : Color(choice.hex!),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: _brandColor == hexToStore(choice.hex)
+                                    ? colors.inkPrimary
+                                    : colors.hairline,
+                                width: 2,
+                              ),
+                            ),
+                            child: choice.hex == null
+                                ? Center(
+                                    child: Text('A',
+                                        style: SublyTypography.label.copyWith(
+                                            color: colors.inkSecondary)))
+                                : null,
+                          ),
+                        ),
+                    ],
                   ),
                   SwitchListTile(
                     key: const Key('trial-switch'),

@@ -13,6 +13,7 @@ class Subscription {
     required this.reminderDaysBefore,
     required this.active,
     required this.createdAt,
+    this.brandColor,
   });
 
   final String id;
@@ -25,6 +26,9 @@ class Subscription {
   final int reminderDaysBefore;
   final bool active;
   final DateTime? createdAt;
+
+  /// Manual brand-color override (hex like '1DB954'); null = auto-match.
+  final String? brandColor;
 
   bool get trialing =>
       trialEndsAt != null && trialEndsAt!.isAfter(DateTime.now());
@@ -43,6 +47,7 @@ class Subscription {
       reminderDaysBefore: (map['reminderDaysBefore'] as num?)?.toInt() ?? 3,
       active: map['active'] as bool? ?? true,
       createdAt: (map['createdAt'] as Timestamp?)?.toDate(),
+      brandColor: map['brandColor'] as String?,
     );
   }
 }

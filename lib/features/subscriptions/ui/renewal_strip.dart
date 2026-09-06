@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:subtracker/core/brand/brand_colors.dart';
 import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/subscriptions/domain/subscription.dart';
 
@@ -60,6 +61,7 @@ class RenewalStrip extends StatelessWidget {
                       '${sub.currency} ${sub.cost.toStringAsFixed(2)}',
                   urgent: urgent,
                   urgentColor: colors.statusRenewalSoon,
+                  brandColor: brandColorFor(sub),
                 );
               },
             ),
@@ -78,6 +80,7 @@ class _RenewalChip extends StatelessWidget {
     required this.amount,
     required this.urgent,
     required this.urgentColor,
+    required this.brandColor,
   });
 
   final String weekday;
@@ -86,13 +89,14 @@ class _RenewalChip extends StatelessWidget {
   final String amount;
   final bool urgent;
   final Color urgentColor;
+  final Color brandColor;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.sublyColors;
     return Container(
       width: 108,
-      padding: const EdgeInsets.all(SublySpace.s12),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: colors.step2,
         borderRadius: BorderRadius.circular(20),
@@ -100,7 +104,20 @@ class _RenewalChip extends StatelessWidget {
           color: urgent ? urgentColor : colors.hairline,
         ),
       ),
-      child: Column(
+      child: Stack(
+        children: [
+          // The brand-color left edge: the strip's thread of chroma,
+          // clipped to the pill shape.
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            child: Container(width: 3, color: brandColor),
+          ),
+          Padding(
+            padding:
+                const EdgeInsets.fromLTRB(15, SublySpace.s12, SublySpace.s12, SublySpace.s12),
+            child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -123,6 +140,9 @@ class _RenewalChip extends StatelessWidget {
           Text(amount,
               style: SublyTypography.caption
                   .copyWith(color: colors.inkSecondary)),
+        ],
+          ),
+        ),
         ],
       ),
     );

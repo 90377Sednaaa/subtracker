@@ -18,18 +18,25 @@ class BrevoEmailVerificationService implements EmailVerificationService {
 
   final HttpClient _client;
 
+  static bool isLiveApiKey(String key) {
+    final trimmed = key.trim();
+    return trimmed.isNotEmpty &&
+        trimmed.startsWith('xkeysib-') &&
+        !trimmed.contains('YOUR-');
+  }
+
   @override
   Future<bool> sendOtpEmail({
     required String recipientEmail,
     required String code,
   }) async {
-    // If no API key is configured, log code to console for safe demo/development.
-    if (BrevoConfig.apiKey.trim().isEmpty) {
+    // If no live REST API key is configured, log code to console for safe demo/development.
+    if (!isLiveApiKey(BrevoConfig.apiKey)) {
       developer.log(
         '=== [BrevoEmailService (Demo Mode)] ===\n'
         'Recipient: $recipientEmail\n'
         'Verification Code: $code\n'
-        'To send real emails, paste your Brevo API key in lib/core/config/email_config.dart.\n'
+        'To send real emails, paste your Brevo API key (starting with xkeysib-) in lib/core/config/email_config.dart.\n'
         '========================================',
         name: 'BrevoEmailService',
       );

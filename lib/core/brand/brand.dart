@@ -89,11 +89,13 @@ class BrandTile extends StatelessWidget {
     super.key,
     required this.name,
     required this.color,
+    this.category,
     this.size = 22,
   });
 
   final String name;
   final Color color;
+  final String? category;
   final double size;
 
   @override
@@ -102,6 +104,9 @@ class BrandTile extends StatelessWidget {
         Theme.of(context).extension<SublyColors>() ?? SublyColors.dark;
     final icon = brandIconFromName(name);
     final asset = icon == null ? brandIconAssetFromName(name) : null;
+    final catIcon = (icon == null && asset == null && category != null)
+        ? categoryIconFromName(category!)
+        : null;
 
     Widget child;
     if (icon != null) {
@@ -116,6 +121,12 @@ class BrandTile extends StatelessWidget {
         width: size * 0.54,
         height: size * 0.54,
         colorFilter: ColorFilter.mode(colors.inkInverse, BlendMode.srcIn),
+      );
+    } else if (catIcon != null) {
+      child = Icon(
+        catIcon,
+        size: size * 0.58,
+        color: colors.inkInverse,
       );
     } else {
       child = Text(

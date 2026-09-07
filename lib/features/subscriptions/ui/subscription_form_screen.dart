@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -123,20 +124,20 @@ class _SubscriptionFormScreenState
   }
 
   Color get _activeBrandColor {
-    if (widget.initialPreset != null &&
-        _name.text.trim().toLowerCase() ==
-            widget.initialPreset!.name.trim().toLowerCase()) {
-      return Color(widget.initialPreset!.brandColorHex);
-    }
     if (_brandColor != null && _brandColor!.isNotEmpty) {
       final hex = _brandColor!.replaceFirst('#', '');
       final val = int.tryParse(hex, radix: 16);
       if (val != null) return Color(0xFF000000 | val);
     }
+    if (widget.initialPreset != null &&
+        _name.text.trim().toLowerCase() ==
+            widget.initialPreset!.name.trim().toLowerCase()) {
+      return Color(widget.initialPreset!.brandColorHex);
+    }
     if (_name.text.isNotEmpty) {
       return brandColorFromName(_name.text);
     }
-    return otherColor;
+    return categoryColorFromName(_category);
   }
 
   String? get _activeBrandIconAsset {
@@ -208,6 +209,7 @@ class _SubscriptionFormScreenState
                       name: _name.text,
                       asset: _activeBrandIconAsset,
                       color: _activeBrandColor,
+                      category: _category,
                     ),
                   ),
                   const SizedBox(height: SublySpace.s24),
@@ -573,6 +575,105 @@ class _SubscriptionFormScreenState
                                         setState(() => _category = c ?? 'Other'),
                                   ),
                                 ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Divider(height: 1, color: colors.hairline),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: SublySpace.s8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    LucideIcons.palette,
+                                    size: 18,
+                                    color: colors.inkSecondary,
+                                  ),
+                                  const SizedBox(width: SublySpace.s8),
+                                  Text(
+                                    'Accent color',
+                                    style: SublyTypography.body
+                                        .copyWith(color: colors.inkSecondary),
+                                  ),
+                                  const Spacer(),
+                                  if (_brandColor != null)
+                                    GestureDetector(
+                                      onTap: () {
+                                        HapticFeedback.selectionClick();
+                                        setState(() => _brandColor = null);
+                                      },
+                                      child: Text(
+                                        'Reset',
+                                        style: SublyTypography.caption.copyWith(
+                                          color: colors.inkTertiary,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: SublySpace.s12),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  for (final hex in const [
+                                    '10B981', // Emerald
+                                    'F59E0B', // Amber
+                                    '6366F1', // Indigo
+                                    'F43F5E', // Rose
+                                    '8B5CF6', // Violet
+                                    '0EA5E9', // Sky
+                                    'FF6B6B', // Coral
+                                    '14B8A6', // Mint
+                                  ]) ...[
+                                    GestureDetector(
+                                      onTap: () {
+                                        HapticFeedback.selectionClick();
+                                        setState(() {
+                                          if (_brandColor == hex) {
+                                            _brandColor = null;
+                                          } else {
+                                            _brandColor = hex;
+                                          }
+                                        });
+                                      },
+                                      child: Container(
+                                        width: 28,
+                                        height: 28,
+                                        decoration: BoxDecoration(
+                                          color: Color(int.parse('0xFF$hex')),
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: _brandColor == hex
+                                                ? colors.inkPrimary
+                                                : Colors.transparent,
+                                            width: _brandColor == hex ? 2.5 : 0,
+                                          ),
+                                          boxShadow: _brandColor == hex
+                                              ? [
+                                                  BoxShadow(
+                                                    color: Color(int.parse(
+                                                            '0xFF$hex'))
+                                                        .withValues(alpha: 0.4),
+                                                    blurRadius: 6,
+                                                    spreadRadius: 1,
+                                                  ),
+                                                ]
+                                              : null,
+                                        ),
+                                        child: _brandColor == hex
+                                            ? const Icon(Icons.check,
+                                                size: 16, color: Colors.white)
+                                            : null,
+                                      ),
+                                    ),
+                                  ],
+                                ],
                               ),
                             ],
                           ),

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:subtracker/core/brand/brand.dart';
 import 'package:subtracker/core/brand/brand_colors.dart';
@@ -28,13 +31,34 @@ class CalendarView extends StatefulWidget {
 
 class _CalendarViewState extends State<CalendarView> {
   int _monthOffset = 0;
+  late int _selectedDay;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDay = widget.now.day;
+  }
 
   DateTime get _displayMonth {
     final now = widget.now;
     return DateTime(now.year, now.month + _monthOffset);
   }
 
-  void _shift(int delta) => setState(() => _monthOffset += delta);
+  void _shift(int delta) {
+    setState(() {
+      _monthOffset += delta;
+      final first = DateTime(_displayMonth.year, _displayMonth.month, 1);
+      final daysInMonth =
+          DateTime(_displayMonth.year, _displayMonth.month + 1)
+              .difference(first)
+              .inDays;
+      if (_monthOffset == 0) {
+        _selectedDay = widget.now.day;
+      } else {
+        _selectedDay = _selectedDay.clamp(1, daysInMonth);
+      }
+    });
+  }
 
   static const _weekdays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
@@ -80,14 +104,45 @@ class _CalendarViewState extends State<CalendarView> {
                   ],
                 ),
               ),
+              if (!isCurrentMonth) ...[
+                GestureDetector(
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    setState(() {
+                      _monthOffset = 0;
+                      _selectedDay = widget.now.day;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: SublySpace.s8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colors.step2,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: colors.hairline),
+                    ),
+                    child: Text(
+                      'Today',
+                      style: SublyTypography.caption.copyWith(
+                        color: colors.inkPrimary,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: SublySpace.s8),
+              ],
               _MonthArrow(
                 icon: Icons.chevron_left,
-                onTap: () => _shift(-1),
+                onTap: _monthOffset <= -12 ? null : () => _shift(-1),
               ),
               const SizedBox(width: SublySpace.s8),
               _MonthArrow(
                 icon: Icons.chevron_right,
-                onTap: isCurrentMonth ? null : () => _shift(1),
+                onTap: _monthOffset >= 12 ? null : () => _shift(1),
               ),
             ],
           ),
@@ -107,11 +162,35 @@ class _CalendarViewState extends State<CalendarView> {
           const SizedBox(height: SublySpace.s8),
           // Short screens scroll the grid; cells keep their fixed geometry.
           Expanded(
-            child: SingleChildScrollView(
-              child: _buildGrid(colors, month, byDay, today),
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onHorizontalDragEnd: (details) {
+                final velocity = details.primaryVelocity ?? 0;
+                if (velocity < -200 && _monthOffset < 12) {
+                  _shift(1);
+                } else if (velocity > 200 && _monthOffset > -12) {
+                  _shift(-1);
+                }
+              },
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildGrid(colors, month, byDay, today),
+                  const SizedBox(height: SublySpace.s16),
+                  _buildSelectedDayAgenda(
+                    colors,
+                    month,
+                    _selectedDay,
+                    byDay[_selectedDay] ?? const <Subscription>[],
+                  ),
+                  const SizedBox(height: SublySpace.s32),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: SublySpace.s16),
+        ),
+        const SizedBox(height: SublySpace.s16),
         ],
       ),
     );
@@ -166,12 +245,18 @@ class _CalendarViewState extends State<CalendarView> {
     final renewals = byDay[dayNumber] ?? const <Subscription>[];
     final date = DateTime(month.year, month.month, dayNumber);
     final isToday = date == today;
+    final isSelected = dayNumber == _selectedDay;
 
     return Padding(
       padding: const EdgeInsets.all(2),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: renewals.isEmpty ? null : () => _showDaySheet(renewals, dayNumber),
+        onTap: () {
+          HapticFeedback.selectionClick();
+          setState(() {
+            _selectedDay = dayNumber;
+          });
+        },
         child: Container(
           key: Key('cal-day-$dayNumber'),
           padding: const EdgeInsets.symmetric(
@@ -179,11 +264,15 @@ class _CalendarViewState extends State<CalendarView> {
             vertical: SublySpace.s4,
           ),
           decoration: BoxDecoration(
-            color: renewals.isEmpty ? colors.step1 : colors.step2,
+            color: isSelected
+                ? colors.step3
+                : (renewals.isEmpty ? colors.step1 : colors.step2),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: isToday ? colors.inkPrimary : colors.hairline,
-              width: isToday ? 1.5 : 1,
+              color: isSelected
+                  ? colors.inkPrimary
+                  : (isToday ? colors.inkSecondary : colors.hairline),
+              width: isSelected ? 1.5 : (isToday ? 1.5 : 1),
             ),
           ),
           child: Column(
@@ -192,8 +281,10 @@ class _CalendarViewState extends State<CalendarView> {
               Text(
                 '$dayNumber',
                 style: SublyTypography.caption.copyWith(
-                  color: isToday ? colors.inkPrimary : colors.inkTertiary,
-                  fontWeight: isToday ? FontWeight.w700 : null,
+                  color: (isSelected || isToday)
+                      ? colors.inkPrimary
+                      : colors.inkTertiary,
+                  fontWeight: (isSelected || isToday) ? FontWeight.w700 : null,
                 ),
               ),
               if (renewals.isNotEmpty) ...[
@@ -207,48 +298,140 @@ class _CalendarViewState extends State<CalendarView> {
     );
   }
 
-  void _showDaySheet(List<Subscription> renewals, int day) {
-    final colors = context.sublyColors;
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: colors.step3,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(SublySpace.radiusSheet)),
+  Widget _buildSelectedDayAgenda(
+    SublyColors colors,
+    DateTime month,
+    int day,
+    List<Subscription> dayRenewals,
+  ) {
+    final selectedDate = DateTime(month.year, month.month, day);
+    final isToday = selectedDate.year == widget.now.year &&
+        selectedDate.month == widget.now.month &&
+        selectedDate.day == widget.now.day;
+    final dateHeading = isToday
+        ? 'Today · ${DateFormat('MMMM d').format(selectedDate)}'
+        : DateFormat('EEEE, MMMM d').format(selectedDate);
+
+    final totalAmount =
+        dayRenewals.fold<double>(0.0, (acc, s) => acc + s.cost);
+    final currency =
+        dayRenewals.isNotEmpty ? dayRenewals.first.currency : 'USD';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(SublySpace.s16),
+      decoration: BoxDecoration(
+        color: colors.step2,
+        borderRadius: BorderRadius.circular(SublySpace.radiusCard),
+        border: Border.all(color: colors.hairline),
       ),
-      builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(SublySpace.s16),
-              child: Text(
-                DateFormat('MMMM d').format(DateTime(
-                    _displayMonth.year, _displayMonth.month, day)),
-                style: SublyTypography.titleM.copyWith(color: colors.inkPrimary),
-              ),
-            ),
-            for (final sub in renewals)
-              ListTile(
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: SublySpace.s16),
-                leading: BrandTile(
-                    name: sub.name,
-                    color: brandColorFor(sub),
-                    size: 30),
-                title: Text(sub.name,
-                    style: SublyTypography.body.copyWith(
-                        color: sheetContext.sublyColors.inkPrimary)),
-                trailing: Text(
-                  '${sub.currency} ${sub.cost.toStringAsFixed(2)}',
-                  style: SublyTypography.moneyRow.copyWith(
-                      fontSize: 14,
-                      color: sheetContext.sublyColors.inkPrimary),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      dateHeading,
+                      style: SublyTypography.titleM
+                          .copyWith(color: colors.inkPrimary),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      dayRenewals.isEmpty
+                          ? 'No renewals scheduled'
+                          : '${dayRenewals.length} ${dayRenewals.length == 1 ? 'renewal' : 'renewals'} · $currency ${totalAmount.toStringAsFixed(2)}',
+                      style: SublyTypography.caption
+                          .copyWith(color: colors.inkSecondary),
+                    ),
+                  ],
                 ),
               ),
-            const SizedBox(height: SublySpace.s8),
+              OutlinedButton.icon(
+                onPressed: () => context.push('/form'),
+                icon:
+                    Icon(LucideIcons.plus, size: 14, color: colors.inkPrimary),
+                label: Text(
+                  'Add',
+                  style: SublyTypography.caption.copyWith(
+                    color: colors.inkPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: colors.hairline),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: SublySpace.s12,
+                    vertical: SublySpace.s4,
+                  ),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ),
+            ],
+          ),
+          if (dayRenewals.isNotEmpty) ...[
+            const SizedBox(height: SublySpace.s12),
+            for (final sub in dayRenewals)
+              InkWell(
+                onTap: () => context.push('/edit/${sub.id}', extra: sub),
+                borderRadius: BorderRadius.circular(SublySpace.radiusCard),
+                child: Container(
+                  margin: const EdgeInsets.only(top: SublySpace.s8),
+                  padding: const EdgeInsets.all(SublySpace.s12),
+                  decoration: BoxDecoration(
+                    color: colors.step1,
+                    borderRadius: BorderRadius.circular(SublySpace.radiusCard),
+                    border: Border.all(color: colors.hairline),
+                  ),
+                  child: Row(
+                    children: [
+                      BrandTile(
+                        name: sub.name,
+                        color: brandColorFor(sub),
+                        size: 36,
+                        category: sub.category,
+                      ),
+                      const SizedBox(width: SublySpace.s12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              sub.name,
+                              style: SublyTypography.body.copyWith(
+                                color: colors.inkPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${sub.billingCycle.name[0].toUpperCase()}${sub.billingCycle.name.substring(1)}${sub.trialing ? ' · Trial' : ''}',
+                              style: SublyTypography.caption
+                                  .copyWith(color: colors.inkTertiary),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        '${sub.currency} ${sub.cost.toStringAsFixed(2)}',
+                        style: SublyTypography.moneyRow.copyWith(
+                          fontSize: 15,
+                          color: colors.inkPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
           ],
-        ),
+        ],
       ),
     );
   }

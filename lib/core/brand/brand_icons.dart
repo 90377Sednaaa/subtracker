@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:simple_icons/simple_icons.dart';
@@ -199,6 +200,7 @@ class BrandBadge extends StatelessWidget {
     this.icon,
     this.asset,
     this.name,
+    this.category,
     required this.color,
     this.size = 48,
     this.showGlow = true,
@@ -207,6 +209,7 @@ class BrandBadge extends StatelessWidget {
   final IconData? icon;
   final String? asset;
   final String? name;
+  final String? category;
   final Color color;
   final double size;
   final bool showGlow;
@@ -234,6 +237,12 @@ class BrandBadge extends StatelessWidget {
         width: size * 0.52,
         height: size * 0.52,
         colorFilter: ColorFilter.mode(glyphColor, BlendMode.srcIn),
+      );
+    } else if (category != null && categoryIconFromName(category!) != null) {
+      child = Icon(
+        categoryIconFromName(category!),
+        size: size * 0.52,
+        color: glyphColor,
       );
     } else if (name != null && name!.isNotEmpty) {
       child = Text(
@@ -268,6 +277,45 @@ class BrandBadge extends StatelessWidget {
       ),
       child: child,
     );
+  }
+}
+
+/// Resolves a matching Lucide icon for standard subscription categories.
+IconData? categoryIconFromName(String category) {
+  switch (category.toLowerCase().trim()) {
+    case 'entertainment':
+    case 'streaming':
+      return LucideIcons.tv;
+    case 'music':
+    case 'audio':
+      return LucideIcons.music;
+    case 'productivity':
+    case 'work':
+      return LucideIcons.briefcase;
+    case 'development':
+    case 'tech':
+      return LucideIcons.code;
+    case 'design':
+      return LucideIcons.pen_tool;
+    case 'cloud & storage':
+    case 'storage':
+    case 'cloud':
+      return LucideIcons.cloud;
+    case 'gaming':
+      return LucideIcons.gamepad_2;
+    case 'health & fitness':
+    case 'fitness':
+      return LucideIcons.dumbbell;
+    case 'utilities':
+      return LucideIcons.zap;
+    case 'finance':
+      return LucideIcons.wallet;
+    case 'education':
+      return LucideIcons.graduation_cap;
+    case 'news':
+      return LucideIcons.newspaper;
+    default:
+      return null;
   }
 }
 

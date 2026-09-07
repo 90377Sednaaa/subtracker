@@ -148,26 +148,7 @@ class _SubscriptionFormScreenState
     return brandIconAssetFromName(_name.text);
   }
 
-  Color _categoryDotColor(String category) {
-    final lowered = category.toLowerCase();
-    if (lowered.contains('entertainment') || lowered.contains('streaming')) {
-      return const Color(0xFFC96B6B);
-    }
-    if (lowered.contains('music')) return const Color(0xFF6FA97C);
-    if (lowered.contains('productivity')) return const Color(0xFF7C93BE);
-    if (lowered.contains('gaming')) return const Color(0xFFA08BC0);
-    if (lowered.contains('books')) return const Color(0xFFC09878);
-    if (lowered.contains('storage') || lowered.contains('cloud')) {
-      return const Color(0xFF78A0AC);
-    }
-    if (lowered.contains('design')) return const Color(0xFF78A8A0);
-    if (lowered.contains('education')) return const Color(0xFF58CC02);
-    if (lowered.contains('utilities')) return const Color(0xFF0A85EA);
-    for (final entry in categoryColorTable.entries) {
-      if (lowered.contains(entry.key)) return Color(entry.value);
-    }
-    return otherColor;
-  }
+  Color _categoryDotColor(String category) => categoryColorFromName(category);
 
   Widget _buildGroupCard({
     required SublyColors colors,
@@ -458,19 +439,24 @@ class _SubscriptionFormScreenState
                               value: _currency,
                               dropdownColor: colors.step2,
                               isDense: true,
+                              style: SublyTypography.body.copyWith(
+                                color: colors.inkPrimary,
+                              ),
                               icon: Icon(
                                 LucideIcons.chevron_down,
                                 size: 14,
                                 color: colors.inkSecondary,
                               ),
-                              style: SublyTypography.body.copyWith(
-                                color: colors.inkPrimary,
-                                fontWeight: FontWeight.w600,
-                              ),
                               items: const ['USD', 'EUR', 'GBP', 'PHP', 'JPY']
-                                  .map((c) => DropdownMenuItem(
-                                      value: c, child: Text(c)))
-                                  .toList(),
+                                  .contains(_currency)
+                                      ? const ['USD', 'EUR', 'GBP', 'PHP', 'JPY']
+                                          .map((c) => DropdownMenuItem(
+                                              value: c, child: Text(c)))
+                                          .toList()
+                                      : [...const ['USD', 'EUR', 'GBP', 'PHP', 'JPY'], _currency]
+                                          .map((c) => DropdownMenuItem(
+                                              value: c, child: Text(c)))
+                                          .toList(),
                               onChanged: (c) {
                                 if (c != null) {
                                   setState(() => _currency = c);

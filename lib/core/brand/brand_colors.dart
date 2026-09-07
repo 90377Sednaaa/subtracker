@@ -24,17 +24,30 @@ const brandColorTable = <String, int>{
 };
 
 const categoryColorTable = <String, int>{
+  'entertainment': 0xFFC96B6B,
   'streaming': 0xFFC96B6B,
   'music': 0xFF6FA97C,
   'productivity': 0xFF7C93BE,
   'gaming': 0xFFA08BC0,
   'books': 0xFFC09878,
+  'cloud': 0xFF78A0AC,
   'storage': 0xFF78A0AC,
   'shopping': 0xFFB8A878,
   'design': 0xFF78A8A0,
+  'education': 0xFF58CC02,
+  'utilities': 0xFF0A85EA,
 };
 
 const otherColor = Color(0xFF8C8C8C);
+
+/// Resolves the color for a subscription category.
+Color categoryColorFromName(String category) {
+  final lowered = category.toLowerCase();
+  for (final entry in categoryColorTable.entries) {
+    if (lowered.contains(entry.key)) return Color(entry.value);
+  }
+  return otherColor;
+}
 
 /// Resolves the brand color from a bare name: name match → category
 /// keyword → 'Other'.

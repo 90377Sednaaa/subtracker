@@ -23,20 +23,6 @@
 
 **Subly** is an Android-first subscription manager engineered around financial clarity and visual calm. It provides a distraction-free dark ledger for tracking recurring commitments, calculating per-currency monthly and annual burn rates, scheduling on-device notifications before trial and renewal deadlines, and accessing a seeded directory of one-tap cancellation links.
 
-### Visual Showcase
-
-| Auth & Sign In | OTP Verification | Dashboard (Dark) |
-| :---: | :---: | :---: |
-| <img src="docs/screenshots/signin-dark.png" width="260" /> | <img src="docs/screenshots/otp-dark.png" width="260" /> | <img src="docs/screenshots/dashboard-dark.png" width="260" /> |
-
-| Catalog & 35+ Presets | Custom Subscription Form | Cancellation Directory |
-| :---: | :---: | :---: |
-| <img src="docs/screenshots/catalog-dark.png" width="260" /> | <img src="docs/screenshots/form-dark.png" width="260" /> | <img src="docs/screenshots/directory-dark.png" width="260" /> |
-
-| Light Theme: Auth | Light Theme: OTP | Light Theme: Dashboard |
-| :---: | :---: | :---: |
-| <img src="docs/screenshots/signin-light.png" width="260" /> | <img src="docs/screenshots/otp-light.png" width="260" /> | <img src="docs/screenshots/dashboard-light.png" width="260" /> |
-
 ---
 
 ## Features

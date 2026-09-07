@@ -42,17 +42,17 @@ List<PresetService> get kPopularPresetServices =>
 const kPresetServices = <PresetService>[
   // Popular Services (Pinned at top)
   PresetService(
-    name: 'ChatGPT Plus',
-    category: 'Productivity',
-    brandColorHex: 0xFF10A37F,
-    iconAsset: 'assets/brand/logos/chatgpt.svg',
-    isPopular: true,
-  ),
-  PresetService(
     name: 'Netflix',
     category: 'Entertainment',
     brandColorHex: 0xFFE50914,
     iconAsset: 'assets/brand/logos/netflix.svg',
+    isPopular: true,
+  ),
+  PresetService(
+    name: 'ChatGPT Plus',
+    category: 'Productivity',
+    brandColorHex: 0xFF10A37F,
+    iconAsset: 'assets/brand/logos/chatgpt.svg',
     isPopular: true,
   ),
   PresetService(

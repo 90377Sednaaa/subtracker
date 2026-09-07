@@ -173,11 +173,12 @@ class BrandGlyphTile extends StatelessWidget {
   }
 }
 
-/// Circular brand badge with crisp centered vector logo or lettermark fallback,
-/// hairline border, and brand-tinted radial aura glow.
+/// Circular brand badge with crisp centered official logo or lettermark fallback,
+/// hairline border, and brand-tinted radial aura glow. Renders official brand colors.
 class BrandBadge extends StatelessWidget {
   const BrandBadge({
     super.key,
+    this.icon,
     this.asset,
     this.name,
     required this.color,
@@ -185,6 +186,7 @@ class BrandBadge extends StatelessWidget {
     this.showGlow = true,
   });
 
+  final IconData? icon;
   final String? asset;
   final String? name;
   final Color color;
@@ -195,6 +197,38 @@ class BrandBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors =
         Theme.of(context).extension<SublyColors>() ?? SublyColors.dark;
+    final glyphColor = effectiveBrandGlyphColor(color, colors);
+    final resolvedIcon =
+        icon ?? (name != null ? brandIconFromName(name!) : null);
+    final resolvedAsset =
+        asset ?? (name != null ? brandIconAssetFromName(name!) : null);
+
+    Widget? child;
+    if (resolvedIcon != null) {
+      child = Icon(
+        resolvedIcon,
+        size: size * 0.52,
+        color: glyphColor,
+      );
+    } else if (resolvedAsset != null) {
+      child = SvgPicture.asset(
+        resolvedAsset,
+        width: size * 0.52,
+        height: size * 0.52,
+        colorFilter: ColorFilter.mode(glyphColor, BlendMode.srcIn),
+      );
+    } else if (name != null && name!.isNotEmpty) {
+      child = Text(
+        brandInitial(name!),
+        style: TextStyle(
+          color: glyphColor,
+          fontSize: size * 0.46,
+          height: 1.0,
+          fontWeight: FontWeight.w700,
+          fontFamily: SublyTypography.displayFamily,
+        ),
+      );
+    }
 
     return Container(
       width: size,
@@ -214,25 +248,7 @@ class BrandBadge extends StatelessWidget {
               ]
             : null,
       ),
-      child: asset != null
-          ? SvgPicture.asset(
-              asset!,
-              width: size * 0.52,
-              height: size * 0.52,
-              colorFilter: ColorFilter.mode(colors.inkPrimary, BlendMode.srcIn),
-            )
-          : (name != null && name!.isNotEmpty)
-              ? Text(
-                  brandInitial(name!),
-                  style: TextStyle(
-                    color: colors.inkPrimary,
-                    fontSize: size * 0.46,
-                    height: 1.0,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: SublyTypography.displayFamily,
-                  ),
-                )
-              : null,
+      child: child,
     );
   }
 }

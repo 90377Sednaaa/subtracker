@@ -6,7 +6,7 @@ import 'package:subtracker/core/theme.dart';
 
 void main() {
   group('BrandBadge', () {
-    testWidgets('renders circular disc with asset and glow', (tester) async {
+    testWidgets('renders circular disc with official brand colored icon and glow', (tester) async {
       const brandColor = Color(0xFFE50914);
       const size = 48.0;
 
@@ -17,7 +17,6 @@ void main() {
             body: Center(
               child: BrandBadge(
                 name: 'Netflix',
-                asset: 'assets/brand/logos/netflix.svg',
                 color: brandColor,
                 size: size,
                 showGlow: true,
@@ -28,7 +27,10 @@ void main() {
       );
 
       expect(find.byType(BrandBadge), findsOneWidget);
-      expect(find.byType(SvgPicture), findsOneWidget);
+      expect(find.byType(Icon), findsOneWidget);
+
+      final iconWidget = tester.widget<Icon>(find.byType(Icon));
+      expect(iconWidget.color, brandColor);
 
       final container = tester.widget<Container>(
         find.descendant(
@@ -50,7 +52,53 @@ void main() {
       expect(shadow.spreadRadius, 1.0);
     });
 
-    testWidgets('renders without asset (fallback lettermark)', (tester) async {
+    testWidgets('renders dark/black brand marks in inkPrimary for contrast', (tester) async {
+      const darkColors = SublyColors.dark;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildSublyTheme(Brightness.dark),
+          home: const Scaffold(
+            body: Center(
+              child: BrandBadge(
+                name: 'Apple One',
+                color: Color(0xFF000000),
+                size: 48.0,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(BrandBadge), findsOneWidget);
+      expect(find.byType(Icon), findsOneWidget);
+
+      final iconWidget = tester.widget<Icon>(find.byType(Icon));
+      expect(iconWidget.color, darkColors.inkPrimary);
+    });
+
+    testWidgets('renders SvgPicture when asset is specified without font icon match', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildSublyTheme(Brightness.dark),
+          home: const Scaffold(
+            body: Center(
+              child: BrandBadge(
+                name: 'Disney+',
+                asset: 'assets/brand/logos/disneyplus.svg',
+                color: Color(0xFF113CCF),
+                size: 48,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(BrandBadge), findsOneWidget);
+      expect(find.byType(SvgPicture), findsOneWidget);
+    });
+
+    testWidgets('renders without asset or icon (fallback lettermark)', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: buildSublyTheme(Brightness.dark),
@@ -67,6 +115,7 @@ void main() {
       );
 
       expect(find.byType(BrandBadge), findsOneWidget);
+      expect(find.byType(Icon), findsNothing);
       expect(find.byType(SvgPicture), findsNothing);
       expect(find.text('C'), findsOneWidget);
     });

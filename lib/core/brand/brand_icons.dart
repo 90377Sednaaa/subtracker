@@ -30,6 +30,7 @@ final brandIconTable = <String, IconData>{
   'github': SimpleIcons.github,
   'copilot': SimpleIcons.githubcopilot,
   'perplexity': SimpleIcons.perplexity,
+  'midjourney': LucideIcons.sailboat,
   'apple music': SimpleIcons.applemusic,
   'apple tv': SimpleIcons.appletv,
   'apple one': SimpleIcons.apple,
@@ -147,11 +148,8 @@ class BrandGlyphTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors =
         Theme.of(context).extension<SublyColors>() ?? SublyColors.dark;
-    final isPrime = name != null && name!.toLowerCase().contains('prime');
-    final isCursor = name != null && name!.toLowerCase().contains('cursor');
-    final resolvedIcon = (isPrime || isCursor)
-        ? null
-        : (icon ?? (name != null ? brandIconFromName(name!) : null));
+    final resolvedIcon =
+        icon ?? (name != null ? brandIconFromName(name!) : null);
     final resolvedAsset =
         asset ?? (name != null ? brandIconAssetFromName(name!) : null);
 
@@ -222,11 +220,8 @@ class BrandBadge extends StatelessWidget {
     final colors =
         Theme.of(context).extension<SublyColors>() ?? SublyColors.dark;
     final glyphColor = effectiveBrandGlyphColor(color, colors);
-    final isPrime = name != null && name!.toLowerCase().contains('prime');
-    final isCursor = name != null && name!.toLowerCase().contains('cursor');
-    final resolvedIcon = (isPrime || isCursor)
-        ? null
-        : (icon ?? (name != null ? brandIconFromName(name!) : null));
+    final resolvedIcon =
+        icon ?? (name != null ? brandIconFromName(name!) : null);
     final resolvedAsset =
         asset ?? (name != null ? brandIconAssetFromName(name!) : null);
 

@@ -68,7 +68,6 @@ class _CalendarViewState extends State<CalendarView> {
     final month = _displayMonth;
     final byDay = renewalsByDay(widget.subscriptions, month);
     final today = DateTime(widget.now.year, widget.now.month, widget.now.day);
-    final isCurrentMonth = _monthOffset == 0;
 
     final heroCurrency = widget.monthlyTotalByCurrency.isEmpty
         ? null
@@ -104,37 +103,6 @@ class _CalendarViewState extends State<CalendarView> {
                   ],
                 ),
               ),
-              if (!isCurrentMonth) ...[
-                GestureDetector(
-                  onTap: () {
-                    HapticFeedback.selectionClick();
-                    setState(() {
-                      _monthOffset = 0;
-                      _selectedDay = widget.now.day;
-                    });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: SublySpace.s8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: colors.step2,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: colors.hairline),
-                    ),
-                    child: Text(
-                      'Today',
-                      style: SublyTypography.caption.copyWith(
-                        color: colors.inkPrimary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: SublySpace.s8),
-              ],
               _MonthArrow(
                 icon: Icons.chevron_left,
                 onTap: _monthOffset <= -12 ? null : () => _shift(-1),
@@ -351,7 +319,7 @@ class _CalendarViewState extends State<CalendarView> {
                 ),
               ),
               OutlinedButton.icon(
-                onPressed: () => context.push('/form'),
+                onPressed: () => context.push('/subs/new'),
                 icon:
                     Icon(LucideIcons.plus, size: 14, color: colors.inkPrimary),
                 label: Text(
@@ -380,7 +348,7 @@ class _CalendarViewState extends State<CalendarView> {
             const SizedBox(height: SublySpace.s12),
             for (final sub in dayRenewals)
               InkWell(
-                onTap: () => context.push('/edit/${sub.id}', extra: sub),
+                onTap: () => context.push('/subs/${sub.id}/edit'),
                 borderRadius: BorderRadius.circular(SublySpace.radiusCard),
                 child: Container(
                   margin: const EdgeInsets.only(top: SublySpace.s8),

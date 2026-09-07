@@ -475,9 +475,9 @@ class _LedgerListState extends ConsumerState<_LedgerList> {
           upcoming: ref.watch(next7DaysProvider),
           now: DateTime.now(),
         ),
-        const SizedBox(height: SublySpace.s8),
+        const SizedBox(height: SublySpace.s24),
         _buildFilterChips(colors),
-        const SizedBox(height: SublySpace.s8),
+        const SizedBox(height: SublySpace.s12),
         if (displayList.isEmpty)
           Padding(
             padding: const EdgeInsets.all(SublySpace.s32),

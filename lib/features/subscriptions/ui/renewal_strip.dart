@@ -273,77 +273,77 @@ class _RenewalChip extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: 124,
-        clipBehavior: Clip.antiAlias,
+        padding: const EdgeInsets.all(SublySpace.s12),
         decoration: BoxDecoration(
           color: colors.step2,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: urgent ? urgentColor : colors.hairline,
-            width: urgent ? 1.5 : 1.0,
+            color: urgent ? urgentColor.withValues(alpha: 0.6) : colors.hairline,
+            width: 1.0,
           ),
         ),
-        child: Stack(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // The brand-color left edge: the strip's thread of chroma,
-            // clipped to the pill shape.
-            Positioned(
-              left: 0,
-              top: 0,
-              bottom: 0,
-              child: Container(width: 3, color: brandColor),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  15, SublySpace.s12, SublySpace.s12, SublySpace.s12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 1.5),
-                        decoration: BoxDecoration(
-                          color: urgent
-                              ? urgentColor.withValues(alpha: 0.15)
-                              : colors.step3,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          countdown,
-                          style: SublyTypography.caption.copyWith(
-                            color: urgent ? urgentColor : colors.inkTertiary,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        day,
-                        style: SublyTypography.titleM.copyWith(
-                          color: colors.inkPrimary,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 5, vertical: 1.5),
+                  decoration: BoxDecoration(
+                    color: urgent
+                        ? urgentColor.withValues(alpha: 0.15)
+                        : colors.step3,
+                    borderRadius: BorderRadius.circular(4),
                   ),
-                  const Spacer(),
-                  Text(
+                  child: Text(
+                    countdown,
+                    style: SublyTypography.caption.copyWith(
+                      color: urgent ? urgentColor : colors.inkTertiary,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  day,
+                  style: SublyTypography.titleM.copyWith(
+                    color: colors.inkPrimary,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+            const Spacer(),
+            Row(
+              children: [
+                Container(
+                  width: 6,
+                  height: 6,
+                  margin: const EdgeInsets.only(right: 6),
+                  decoration: BoxDecoration(
+                    color: brandColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
                     name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: SublyTypography.body
                         .copyWith(color: colors.inkPrimary),
                   ),
-                  Text(
-                    amount,
-                    style: SublyTypography.caption
-                        .copyWith(color: colors.inkSecondary),
-                  ),
-                ],
-              ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 2),
+            Text(
+              amount,
+              style: SublyTypography.caption
+                  .copyWith(color: colors.inkSecondary),
             ),
           ],
         ),

@@ -77,6 +77,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/directory',
         pageBuilder: (_, _) => const NoTransitionPage(child: DirectoryScreen()),
       ),
+      GoRoute(
+        path: '/form',
+        redirect: (_, _) => '/subs/new',
+      ),
+      GoRoute(
+        path: '/edit/:id',
+        redirect: (_, state) => '/subs/${state.pathParameters['id']}/edit',
+      ),
 
     ],
   );

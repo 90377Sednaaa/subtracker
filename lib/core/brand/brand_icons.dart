@@ -22,6 +22,35 @@ const brandIconAssetTable = <String, String>{
   'canva': 'assets/brand/logos/canva.svg',
   'audible': 'assets/brand/logos/audible.svg',
   'icloud': 'assets/brand/logos/icloud.svg',
+  'chatgpt': 'assets/brand/logos/chatgpt.svg',
+  'openai': 'assets/brand/logos/chatgpt.svg',
+  'claude': 'assets/brand/logos/claude.svg',
+  'anthropic': 'assets/brand/logos/claude.svg',
+  'cursor': 'assets/brand/logos/cursor.svg',
+  'github': 'assets/brand/logos/github.svg',
+  'copilot': 'assets/brand/logos/github.svg',
+  'perplexity': 'assets/brand/logos/perplexity.svg',
+  'midjourney': 'assets/brand/logos/midjourney.svg',
+  'apple music': 'assets/brand/logos/applemusic.svg',
+  'apple tv': 'assets/brand/logos/appletv.svg',
+  'apple one': 'assets/brand/logos/appleone.svg',
+  'max': 'assets/brand/logos/max.svg',
+  'hbo': 'assets/brand/logos/max.svg',
+  'crunchyroll': 'assets/brand/logos/crunchyroll.svg',
+  'twitch': 'assets/brand/logos/twitch.svg',
+  'google one': 'assets/brand/logos/googleone.svg',
+  'google drive': 'assets/brand/logos/googleone.svg',
+  'notion': 'assets/brand/logos/notion.svg',
+  'figma': 'assets/brand/logos/figma.svg',
+  '1password': 'assets/brand/logos/1password.svg',
+  'slack': 'assets/brand/logos/slack.svg',
+  'playstation': 'assets/brand/logos/playstation.svg',
+  'ps plus': 'assets/brand/logos/playstation.svg',
+  'nintendo': 'assets/brand/logos/nintendo.svg',
+  'discord': 'assets/brand/logos/discord.svg',
+  'duolingo': 'assets/brand/logos/duolingo.svg',
+  'strava': 'assets/brand/logos/strava.svg',
+  'medium': 'assets/brand/logos/medium.svg',
 };
 
 /// Resolves the brand glyph asset from a bare name: case-insensitive
@@ -84,3 +113,68 @@ class BrandGlyphTile extends StatelessWidget {
     );
   }
 }
+
+/// Circular brand badge with crisp centered vector logo or lettermark fallback,
+/// hairline border, and brand-tinted radial aura glow.
+class BrandBadge extends StatelessWidget {
+  const BrandBadge({
+    super.key,
+    this.asset,
+    this.name,
+    required this.color,
+    this.size = 48,
+    this.showGlow = true,
+  });
+
+  final String? asset;
+  final String? name;
+  final Color color;
+  final double size;
+  final bool showGlow;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors =
+        Theme.of(context).extension<SublyColors>() ?? SublyColors.dark;
+
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: colors.step2,
+        border: Border.all(color: colors.hairline, width: 1.0),
+        boxShadow: showGlow
+            ? [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.35),
+                  blurRadius: size * 0.45,
+                  spreadRadius: 1.0,
+                ),
+              ]
+            : null,
+      ),
+      child: asset != null
+          ? SvgPicture.asset(
+              asset!,
+              width: size * 0.52,
+              height: size * 0.52,
+              colorFilter: ColorFilter.mode(colors.inkPrimary, BlendMode.srcIn),
+            )
+          : (name != null && name!.isNotEmpty)
+              ? Text(
+                  brandInitial(name!),
+                  style: TextStyle(
+                    color: colors.inkPrimary,
+                    fontSize: size * 0.46,
+                    height: 1.0,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: SublyTypography.displayFamily,
+                  ),
+                )
+              : null,
+    );
+  }
+}
+

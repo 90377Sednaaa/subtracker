@@ -203,16 +203,21 @@ class _SubscriptionFormScreenState
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                   // Hero Brand Badge
-                  Center(
-                    child: BrandBadge(
-                      size: 72,
-                      name: _name.text,
-                      asset: _activeBrandIconAsset,
-                      color: _activeBrandColor,
-                      category: _category,
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      top: SublySpace.s8,
+                      bottom: SublySpace.s32,
+                    ),
+                    child: Center(
+                      child: BrandBadge(
+                        size: 72,
+                        name: _name.text,
+                        asset: _activeBrandIconAsset,
+                        color: _activeBrandColor,
+                        category: _category,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: SublySpace.s24),
 
                   // Grouped Card 1: Details
                   _buildGroupCard(
@@ -222,7 +227,7 @@ class _SubscriptionFormScreenState
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              vertical: SublySpace.s4),
+                              vertical: SublySpace.s12),
                           child: Row(
                             children: [
                               Text(
@@ -260,7 +265,7 @@ class _SubscriptionFormScreenState
                         Divider(height: 1, color: colors.hairline),
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              vertical: SublySpace.s8),
+                              vertical: SublySpace.s12),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
@@ -269,7 +274,7 @@ class _SubscriptionFormScreenState
                                 style: SublyTypography.body
                                     .copyWith(color: colors.inkSecondary),
                               ),
-                              const SizedBox(height: SublySpace.s8),
+                              const SizedBox(height: SublySpace.s12),
                               _SegmentedCycle(
                                 value: _cycle,
                                 onChanged: (c) => setState(() => _cycle = c),
@@ -280,7 +285,7 @@ class _SubscriptionFormScreenState
                         Divider(height: 1, color: colors.hairline),
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              vertical: SublySpace.s8),
+                              vertical: SublySpace.s12),
                           child: Row(
                             children: [
                               Expanded(
@@ -332,7 +337,7 @@ class _SubscriptionFormScreenState
                         Divider(height: 1, color: colors.hairline),
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              vertical: SublySpace.s4),
+                              vertical: SublySpace.s8),
                           child: Row(
                             children: [
                               Expanded(
@@ -360,7 +365,7 @@ class _SubscriptionFormScreenState
                           Divider(height: 1, color: colors.hairline),
                           Padding(
                             padding: const EdgeInsets.symmetric(
-                                vertical: SublySpace.s8),
+                                vertical: SublySpace.s12),
                             child: Row(
                               children: [
                                 Expanded(
@@ -515,7 +520,7 @@ class _SubscriptionFormScreenState
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              vertical: SublySpace.s4),
+                              vertical: SublySpace.s12),
                           child: Row(
                             children: [
                               Icon(
@@ -582,7 +587,7 @@ class _SubscriptionFormScreenState
                         Divider(height: 1, color: colors.hairline),
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              vertical: SublySpace.s8),
+                              vertical: SublySpace.s12),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -616,7 +621,7 @@ class _SubscriptionFormScreenState
                                     ),
                                 ],
                               ),
-                              const SizedBox(height: SublySpace.s12),
+                              const SizedBox(height: SublySpace.s16),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -675,13 +680,14 @@ class _SubscriptionFormScreenState
                                   ],
                                 ],
                               ),
+                              const SizedBox(height: SublySpace.s4),
                             ],
                           ),
                         ),
                         Divider(height: 1, color: colors.hairline),
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              vertical: SublySpace.s4),
+                              vertical: SublySpace.s12),
                           child: Row(
                             children: [
                               Icon(

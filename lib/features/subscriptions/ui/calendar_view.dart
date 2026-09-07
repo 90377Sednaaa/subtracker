@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:subtracker/core/brand/brand.dart';
@@ -8,12 +9,13 @@ import 'package:subtracker/core/brand/brand_colors.dart';
 import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/subscriptions/domain/renewal_calendar.dart';
 import 'package:subtracker/features/subscriptions/domain/subscription.dart';
+import 'package:subtracker/features/subscriptions/ui/subscription_actions_modal.dart';
 
 /// Month calendar of projected renewals: each day cell carries the brand
 /// lettermarks of the services charging that day ('+N' when more than
 /// three). Monday-first; today gets the ink border; tapping a day lists
 /// its renewals in a bottom sheet.
-class CalendarView extends StatefulWidget {
+class CalendarView extends ConsumerStatefulWidget {
   const CalendarView({
     super.key,
     required this.subscriptions,
@@ -26,17 +28,17 @@ class CalendarView extends StatefulWidget {
   final DateTime now;
 
   @override
-  State<CalendarView> createState() => _CalendarViewState();
+  ConsumerState<CalendarView> createState() => _CalendarViewState();
 }
 
-class _CalendarViewState extends State<CalendarView> {
+class _CalendarViewState extends ConsumerState<CalendarView> {
   int _monthOffset = 0;
-  late int _selectedDay;
+  DateTime? _selectedDate;
 
   @override
   void initState() {
     super.initState();
-    _selectedDay = widget.now.day;
+    _selectedDate = DateTime(widget.now.year, widget.now.month, widget.now.day);
   }
 
   DateTime get _displayMonth {
@@ -47,15 +49,12 @@ class _CalendarViewState extends State<CalendarView> {
   void _shift(int delta) {
     setState(() {
       _monthOffset += delta;
-      final first = DateTime(_displayMonth.year, _displayMonth.month, 1);
-      final daysInMonth =
-          DateTime(_displayMonth.year, _displayMonth.month + 1)
-              .difference(first)
-              .inDays;
-      if (_monthOffset == 0) {
-        _selectedDay = widget.now.day;
-      } else {
-        _selectedDay = _selectedDay.clamp(1, daysInMonth);
+      if (_monthOffset == 0 &&
+          (_selectedDate == null ||
+              _selectedDate!.year != widget.now.year ||
+              _selectedDate!.month != widget.now.month)) {
+        _selectedDate =
+            DateTime(widget.now.year, widget.now.month, widget.now.day);
       }
     });
   }
@@ -149,8 +148,12 @@ class _CalendarViewState extends State<CalendarView> {
                   _buildSelectedDayAgenda(
                     colors,
                     month,
-                    _selectedDay,
-                    byDay[_selectedDay] ?? const <Subscription>[],
+                    _selectedDate != null &&
+                            _selectedDate!.year == month.year &&
+                            _selectedDate!.month == month.month
+                        ? _selectedDate!.day
+                        : null,
+                    byDay,
                   ),
                   const SizedBox(height: SublySpace.s32),
                 ],
@@ -212,8 +215,13 @@ class _CalendarViewState extends State<CalendarView> {
     }
     final renewals = byDay[dayNumber] ?? const <Subscription>[];
     final date = DateTime(month.year, month.month, dayNumber);
-    final isToday = date == today;
-    final isSelected = dayNumber == _selectedDay;
+    final isToday = date.year == today.year &&
+        date.month == today.month &&
+        date.day == today.day;
+    final isSelected = _selectedDate != null &&
+        date.year == _selectedDate!.year &&
+        date.month == _selectedDate!.month &&
+        date.day == _selectedDate!.day;
 
     return Padding(
       padding: const EdgeInsets.all(2),
@@ -222,7 +230,7 @@ class _CalendarViewState extends State<CalendarView> {
         onTap: () {
           HapticFeedback.selectionClick();
           setState(() {
-            _selectedDay = dayNumber;
+            _selectedDate = date;
           });
         },
         child: Container(
@@ -269,10 +277,88 @@ class _CalendarViewState extends State<CalendarView> {
   Widget _buildSelectedDayAgenda(
     SublyColors colors,
     DateTime month,
-    int day,
-    List<Subscription> dayRenewals,
+    int? day,
+    Map<int, List<Subscription>> byDay,
   ) {
+    if (day == null) {
+      final allMonthRenewals = byDay.values.expand((list) => list).toList();
+      final totalAmount =
+          allMonthRenewals.fold<double>(0.0, (acc, s) => acc + s.cost);
+      final currency =
+          allMonthRenewals.isNotEmpty ? allMonthRenewals.first.currency : 'USD';
+      final monthName = DateFormat('MMMM yyyy').format(month);
+
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(SublySpace.s16),
+        decoration: BoxDecoration(
+          color: colors.step2,
+          borderRadius: BorderRadius.circular(SublySpace.radiusCard),
+          border: Border.all(color: colors.hairline),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        monthName,
+                        style: SublyTypography.titleM
+                            .copyWith(color: colors.inkPrimary),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        allMonthRenewals.isEmpty
+                            ? 'No renewals scheduled in $monthName'
+                            : '${allMonthRenewals.length} ${allMonthRenewals.length == 1 ? 'renewal' : 'renewals'} · $currency ${totalAmount.toStringAsFixed(2)}',
+                        style: SublyTypography.caption
+                            .copyWith(color: colors.inkSecondary),
+                      ),
+                    ],
+                  ),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => context.push('/subs/new'),
+                  icon: Icon(LucideIcons.plus,
+                      size: 14, color: colors.inkPrimary),
+                  label: Text(
+                    'Add',
+                    style: SublyTypography.caption.copyWith(
+                      color: colors.inkPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: colors.hairline),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: SublySpace.s12,
+                      vertical: SublySpace.s4,
+                    ),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: SublySpace.s8),
+            Text(
+              'Tap any date to inspect scheduled renewals',
+              style: SublyTypography.caption.copyWith(color: colors.inkTertiary),
+            ),
+          ],
+        ),
+      );
+    }
+
     final selectedDate = DateTime(month.year, month.month, day);
+    final dayRenewals = byDay[day] ?? const <Subscription>[];
     final isToday = selectedDate.year == widget.now.year &&
         selectedDate.month == widget.now.month &&
         selectedDate.day == widget.now.day;
@@ -348,7 +434,12 @@ class _CalendarViewState extends State<CalendarView> {
             const SizedBox(height: SublySpace.s12),
             for (final sub in dayRenewals)
               InkWell(
-                onTap: () => context.push('/subs/${sub.id}/edit'),
+                onTap: () => showSubscriptionActionsModal(
+                  context: context,
+                  ref: ref,
+                  sub: sub,
+                  colors: colors,
+                ),
                 borderRadius: BorderRadius.circular(SublySpace.radiusCard),
                 child: Container(
                   margin: const EdgeInsets.only(top: SublySpace.s8),

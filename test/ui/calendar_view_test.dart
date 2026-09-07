@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/subscriptions/domain/billing_cycle.dart';
@@ -159,6 +160,85 @@ void main() {
         of: find.byKey(const Key('cal-day-7')),
         matching: find.byType(RenewalCluster),
       ), findsOneWidget);
+    });
+
+    testWidgets('navigating to next month does not mark that day as selected',
+        (tester) async {
+      final now = DateTime(2026, 9, 7);
+      final subs = [_mockSub('Claude')];
+
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: buildSublyTheme(Brightness.dark),
+            home: Scaffold(
+              body: CalendarView(
+                subscriptions: subs,
+                monthlyTotalByCurrency: const {
+                  'USD': (monthly: 20.0, annual: 240.0)
+                },
+                now: now,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // In September 2026, day 7 is selected (colors.step3 background)
+      final day7Sep = tester.widget<Container>(find.byKey(const Key('cal-day-7')));
+      final dec7Sep = day7Sep.decoration as BoxDecoration;
+      expect(dec7Sep.color, SublyColors.dark.step3);
+
+      // Tap chevron_right to go to October 2026
+      await tester.tap(find.byIcon(Icons.chevron_right));
+      await tester.pumpAndSettle();
+
+      expect(find.text('October, 2026'), findsOneWidget);
+
+      // In October 2026, day 7 should NOT be selected or marked as today
+      final day7Oct = tester.widget<Container>(find.byKey(const Key('cal-day-7')));
+      final dec7Oct = day7Oct.decoration as BoxDecoration;
+      expect(dec7Oct.color, isNot(SublyColors.dark.step3));
+    });
+
+    testWidgets('tapping subscription item opens subscription actions modal',
+        (tester) async {
+      final now = DateTime(2026, 9, 7);
+      final subs = [_mockSub('Claude')];
+
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: buildSublyTheme(Brightness.dark),
+            home: Scaffold(
+              body: CalendarView(
+                subscriptions: subs,
+                monthlyTotalByCurrency: const {
+                  'USD': (monthly: 20.0, annual: 240.0)
+                },
+                now: now,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tapping the Claude subscription in day agenda
+      final subFinder = find.text('Claude').last;
+      await tester.scrollUntilVisible(
+        subFinder,
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(subFinder);
+      await tester.pumpAndSettle();
+
+      // Bottom sheet modal should open with actions
+      expect(find.text('Mark Paid / Advance Cycle'), findsOneWidget);
+      expect(find.text('Edit Subscription'), findsOneWidget);
     });
   });
 }

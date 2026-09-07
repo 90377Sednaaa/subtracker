@@ -15,8 +15,11 @@ import 'package:subtracker/features/directory/data/cancellation_link_repository.
 import 'package:subtracker/features/directory/ui/directory_screen.dart';
 import 'package:subtracker/features/subscriptions/data/subscription_repository.dart';
 import 'package:subtracker/features/subscriptions/domain/billing_cycle.dart';
+import 'package:subtracker/features/subscriptions/domain/preset_service.dart';
 import 'package:subtracker/features/subscriptions/domain/subscription_draft.dart';
 import 'package:subtracker/features/subscriptions/ui/dashboard_screen.dart';
+import 'package:subtracker/features/subscriptions/ui/subscription_catalog_screen.dart';
+import 'package:subtracker/features/subscriptions/ui/subscription_form_screen.dart';
 
 /// Visual QA: renders the real dashboard and the cancellation directory in
 /// both themes to PNGs under build/design-screenshots/ so layout and
@@ -155,6 +158,82 @@ void main() {
           File('build/design-screenshots/directory-${brightness.name}.png')
               .lengthSync(),
           greaterThan(5000));
+    });
+
+    testWidgets('catalog screenshot — ${brightness.name}', (tester) async {
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(412, 892);
+      addTearDown(tester.view.reset);
+
+      final key = GlobalKey();
+      await tester.pumpWidget(RepaintBoundary(
+        key: key,
+        child: SubtrackerThemeApp(
+          brightness: brightness,
+          child: const SubscriptionCatalogScreen(),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      final boundary =
+          key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+      await tester.runAsync(() async {
+        final image = await boundary.toImage(pixelRatio: 1.0);
+        final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+        Directory('build/design-screenshots').createSync(recursive: true);
+        File('build/design-screenshots/catalog-${brightness.name}.png')
+            .writeAsBytesSync(bytes!.buffer.asUint8List());
+      });
+      expect(
+        File('build/design-screenshots/catalog-${brightness.name}.png')
+            .lengthSync(),
+        greaterThan(5000),
+      );
+    });
+
+    testWidgets('form screenshot — ${brightness.name}', (tester) async {
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(412, 892);
+      addTearDown(tester.view.reset);
+
+      final db = FakeFirebaseFirestore();
+      final repo = SubscriptionRepository(db, 'u1');
+
+      const preset = PresetService(
+        name: 'Cursor',
+        category: 'Utilities',
+        brandColorHex: 0xFF000000,
+      );
+
+      final key = GlobalKey();
+      await tester.pumpWidget(RepaintBoundary(
+        key: key,
+        child: ProviderScope(
+          overrides: [
+            subscriptionRepositoryProvider.overrideWithValue(repo),
+          ],
+          child: SubtrackerThemeApp(
+            brightness: brightness,
+            child: const SubscriptionFormScreen(initialPreset: preset),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      final boundary =
+          key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+      await tester.runAsync(() async {
+        final image = await boundary.toImage(pixelRatio: 1.0);
+        final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+        Directory('build/design-screenshots').createSync(recursive: true);
+        File('build/design-screenshots/form-${brightness.name}.png')
+            .writeAsBytesSync(bytes!.buffer.asUint8List());
+      });
+      expect(
+        File('build/design-screenshots/form-${brightness.name}.png')
+            .lengthSync(),
+        greaterThan(5000),
+      );
     });
   }
 }

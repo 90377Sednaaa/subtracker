@@ -14,6 +14,8 @@ class Subscription {
     required this.active,
     required this.createdAt,
     this.brandColor,
+    this.category = 'Other',
+    this.notes = '',
   });
 
   final String id;
@@ -29,6 +31,9 @@ class Subscription {
 
   /// Manual brand-color override (hex like '1DB954'); null = auto-match.
   final String? brandColor;
+
+  final String category;
+  final String notes;
 
   bool get trialing =>
       trialEndsAt != null && trialEndsAt!.isAfter(DateTime.now());
@@ -48,6 +53,8 @@ class Subscription {
       active: map['active'] as bool? ?? true,
       createdAt: (map['createdAt'] as Timestamp?)?.toDate(),
       brandColor: map['brandColor'] as String?,
+      category: map['category'] as String? ?? 'Other',
+      notes: map['notes'] as String? ?? '',
     );
   }
 }

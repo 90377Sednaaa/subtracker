@@ -10,6 +10,8 @@ class SubscriptionDraft {
     required this.trialEndsAt,
     required this.reminderDaysBefore,
     this.brandColor,
+    this.category = 'Other',
+    this.notes = '',
   });
 
   final String name;
@@ -22,4 +24,7 @@ class SubscriptionDraft {
 
   /// Manual brand-color override (hex without '#'); null = auto-match.
   final String? brandColor;
+
+  final String category;
+  final String notes;
 }

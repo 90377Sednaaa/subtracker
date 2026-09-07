@@ -66,6 +66,8 @@ class SubscriptionRepository {
             ? null
             : Timestamp.fromDate(d.trialEndsAt!),
         'reminderDaysBefore': d.reminderDaysBefore,
+        'category': d.category,
+        'notes': d.notes,
         'active': true,
         'brandColor': d.brandColor,
         'updatedAt': FieldValue.serverTimestamp(),

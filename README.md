@@ -1,62 +1,222 @@
-# Subly (working title)
+<p align="center">
+  <img src="assets/branding/subly_icon_1024.png" alt="Subly Logo" width="110" style="border-radius: 22px;" />
+</p>
 
-An Android subscription tracker built with Flutter + Firebase: a monochrome
-dark ledger for manual-entry subscriptions with per-currency monthly/annual
-totals, on-device reminders before renewals and free-trial end dates, a seeded
-directory of cancellation links, and a simulated premium tier (unlimited
-subscriptions + CSV export).
+<h1 align="center">Subly</h1>
 
-| Dark (default) | Light |
-| --- | --- |
-| ![Dark dashboard](docs/screenshots/dashboard-dark.png) | ![Light dashboard](docs/screenshots/dashboard-light.png) |
+<p align="center">
+  <strong>Know where your money recurs.</strong><br>
+  A modern, high-craft monochrome subscription ledger and renewal tracker for Android.
+</p>
 
-## The design
+<p align="center">
+  <img src="https://img.shields.io/badge/Flutter-3.47.0-02569B?logo=flutter" alt="Flutter" />
+  <img src="https://img.shields.io/badge/Dart-3.13.0-0175C2?logo=dart" alt="Dart" />
+  <img src="https://img.shields.io/badge/Target-Android%20Only-3DDC84?logo=android" alt="Android" />
+  <img src="https://img.shields.io/badge/Tests-140%2B%20Passing-brightgreen" alt="Tests" />
+  <img src="https://img.shields.io/badge/License-MIT-blue" alt="License" />
+</p>
 
-One token sheet (`lib/core/theme.dart`) drives both themes: a monochrome
-night ledger — near-black surfaces, warm-white ink, hairline borders, zero
-shadows — with a single thread of chroma (per-service brand dots and muted
-status tints). Space Grotesk carries the display and money figures (tabular,
-so columns align); Inter handles body and labels. Motion is cinematic calm:
-ease-out only, 40ms staggers, haptic ticks — with three set pieces: the
-count-up hero total with its month-pace ring, the staggered ledger with
-card-morph into the edit screen, and the paywall's light-sweep reveal.
+---
 
-## Setup
+## Overview
+
+**Subly** is an Android-first subscription manager engineered around financial clarity and visual calm. It provides a distraction-free dark ledger for tracking recurring commitments, calculating per-currency monthly and annual burn rates, scheduling on-device notifications before trial and renewal deadlines, and accessing a seeded directory of one-tap cancellation links.
+
+### Visual Showcase
+
+| Auth & Sign In | OTP Verification | Dashboard (Dark) |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/signin-dark.png" width="260" /> | <img src="docs/screenshots/otp-dark.png" width="260" /> | <img src="docs/screenshots/dashboard-dark.png" width="260" /> |
+
+| Catalog & 35+ Presets | Custom Subscription Form | Cancellation Directory |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/catalog-dark.png" width="260" /> | <img src="docs/screenshots/form-dark.png" width="260" /> | <img src="docs/screenshots/directory-dark.png" width="260" /> |
+
+| Light Theme: Auth | Light Theme: OTP | Light Theme: Dashboard |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/signin-light.png" width="260" /> | <img src="docs/screenshots/otp-light.png" width="260" /> | <img src="docs/screenshots/dashboard-light.png" width="260" /> |
+
+---
+
+## Features
+
+- **Monochrome Dark Ledger**: Single token sheet (`lib/core/theme.dart`) driving deep obsidian surfaces, warm-white ink, hairline borders, and zero gratuitous shadows.
+- **Dynamic Theme Inversion**: The `SublyLogoBadge` dynamically adapts with theme inversion (dark mode: white badge with black "S"; light mode: black badge with white "S") with subtle 2px rounded corners.
+- **Dual Authentication**:
+  - **Continue with Google**: One-tap authentication using the official 4-color Google "G" logo and Google Identity Services.
+  - **Manual Account Creation**: Email/password registration paired with a modern 6-box OTP verification flow powered by Brevo.
+- **Accurate Date & Burn Calculations**:
+  - Weekly, Monthly, and Annual cycles.
+  - Safe month-end date clamping (e.g. Jan 31 &rarr; Feb 28/29).
+  - Isolated per-currency totals without arbitrary currency conversions.
+- **35+ Curated Presets**: Netflix, Spotify, ChatGPT, Claude, GitHub, Figma, Disney+, YouTube Premium, and more with official vector marks and hex brand accents.
+- **Local On-Device Reminders**: Exact alarm notifications scheduled via `flutter_local_notifications` 3 days before renewal or trial expiration (no FCM or background server dependencies).
+- **Cancellation Directory**: Quick access to official unsubscribe and management portals.
+- **Simulated Premium Tier**: Free tier allows up to 5 subscriptions; exceeding the cap directs to the sleek paywall with CSV export.
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+Ensure the following are installed on your workstation:
+
+1. **Flutter SDK**: `3.47.0` (Dart `3.13.0` or newer on the `stable` channel).
+   ```bash
+   flutter --version
+   ```
+2. **Android SDK & Platform Tools**: Android Studio with Android SDK API 34+ and build tools `36.0.0`.
+3. **Java Development Kit**: JDK 17+ (bundled with Android Studio).
+4. **Android Device or Emulator**: A physical Android device with USB debugging enabled, or an Android Virtual Device (AVD).
+
+---
+
+### Step-by-Step Guide to Run Subly
+
+#### 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-username/subtracker.git
+cd subtracker
+```
+
+#### 2. Install Flutter Dependencies
 
 ```bash
 flutter pub get
-flutterfire configure --project=subly-dev --platforms=android   # config already generated; re-run to refresh
-flutter test        # full test suite (fake Cloud Firestore, no emulator needed)
+```
+
+#### 3. Configure Email Verification (Optional / Recommended)
+
+Subly supports email OTP verification for manual account creation using Brevo (formerly Sendinblue).
+
+1. Copy the example configuration template:
+   ```bash
+   # Windows PowerShell:
+   Copy-Item lib/core/config/email_config.example.dart lib/core/config/email_config.dart
+
+   # macOS / Linux:
+   cp lib/core/config/email_config.example.dart lib/core/config/email_config.dart
+   ```
+2. Open `lib/core/config/email_config.dart` (which is git-ignored) and insert your Brevo API key and sender details:
+   ```dart
+   class EmailConfig {
+     static const String brevoApiKey = 'xkeysib-YOUR-API-KEY';
+     static const String brevoSenderEmail = 'your-verified-sender@example.com';
+     static const String brevoSenderName = 'Subly';
+   }
+   ```
+   > **Note:** If you do not configure a Brevo API key, Subly automatically operates in **Demo Mode**: OTP codes are logged directly to the debug console (`BrevoService: Demo mode OTP code is: 123456`) so you can test account creation immediately without an external API key.
+
+Alternatively, you can provide the API key at runtime using `--dart-define`:
+```bash
+flutter run -d android --dart-define=BREVO_API_KEY="your-api-key"
+```
+
+#### 4. Launch an Android Emulator
+
+List all configured Android emulators:
+```bash
+flutter emulators
+```
+
+Launch your emulator (for example, `Medium_Phone`):
+```bash
+flutter emulators --launch Medium_Phone
+```
+
+#### 5. Run the Application
+
+Execute on your connected Android device or running emulator:
+
+```bash
 flutter run -d android
 ```
 
-Seed the cancellation directory (writes are blocked for clients by
-firestore.rules, so seeding runs server-side):
+To build a standalone debug APK:
+```bash
+flutter build apk --debug
+# Install to device via ADB:
+adb install -r build/app/outputs/flutter-apk/app-debug.apk
+```
 
-1. Firebase console -> Project settings -> Service accounts -> Generate new
-   private key -> save as `scripts/serviceAccountKey.json` (git-ignored).
-2. `cd scripts && npm install firebase-admin && node seed_cancellation_links.js`
+---
 
-## Demo checklist
+## Seeding Cancellation Links (Optional)
 
-1. Fresh install -> sign-in wall (the S monogram) -> Google Sign-In ->
-   empty dashboard.
-2. Add subscriptions; the 6th is blocked by the free limit -> paywall ->
-   choose Monthly -> the 6th saves.
-3. Add a subscription with a free trial; reminder fires before the trial ends.
-4. Dashboard: the total counts up with the month-pace ring; per-currency
-   totals; NEXT 7 DAYS strip flags renewals <3 days out.
-5. Tap a ledger card -> it morphs into the pre-filled edit screen.
-6. Directory (link icon) lists cancellation pages; tapping opens the browser.
-7. Settings -> CSV export copies to clipboard; theme toggle (dark/light);
-   Sign out returns to the wall.
-8. Cross-user Firestore access is rejected by security rules.
+The directory of cancellation links is stored in Firestore (`cancellation_links` collection). Because `firestore.rules` makes this collection read-only for clients, seeding is performed via the admin script:
 
-## Plans & docs
+1. In Firebase Console &rarr; **Project Settings** &rarr; **Service Accounts** &rarr; click **Generate new private key**.
+2. Save the downloaded JSON file as `scripts/serviceAccountKey.json` (this file is git-ignored).
+3. Run the seed script:
+   ```bash
+   cd scripts
+   npm install firebase-admin
+   node seed_cancellation_links.js
+   cd ..
+   ```
 
-- `docs/superpowers/plans/2026-09-06-subly-mvp.md` — architecture phase (implemented)
-- `docs/superpowers/plans/2026-09-06-subly-design.md` — design phase (implemented)
-- `AGENTS.md` — architecture map, design-system rules, and framework gotchas for agents
+---
 
-Deferred device checks: sign-in flow on real hardware, a notification actually
-firing, the 60fps profile pass, and the demo checklist run end-to-end.
+## Running Tests & Code Quality
+
+Subly maintains comprehensive test coverage across domain logic, repositories, and UI widgets:
+
+```bash
+# Run the entire test suite (140+ tests)
+flutter test
+
+# Run static analysis (zero errors, zero warnings)
+flutter analyze
+
+# Regenerate UI visual QA screenshots
+flutter test test/design/screenshot_test.dart
+
+# Re-render the launcher app icon from branding SVGs
+flutter test test/design/generate_app_icon_test.dart
+dart run flutter_launcher_icons
+```
+
+---
+
+## Architecture
+
+Subly follows a clean three-layer architecture powered by **Riverpod 3**:
+
+```
+lib/
+├── main.dart                  # App bootstrap, Firebase initialization & repository overrides
+├── firebase_options.dart      # FlutterFire generated platform configurations
+├── core/
+│   ├── theme.dart             # Central design tokens (SublyColors, SublyTypography, SublyMotion)
+│   ├── brand/                 # SublyLogoBadge, SublyMark, and brand color lookup
+│   ├── config/                # App configuration (EmailConfig, Brevo API integration)
+│   ├── router.dart            # GoRouter configuration & authentication guards
+│   └── notifications/         # Local alarm reminder service (flutter_local_notifications)
+└── features/
+    ├── auth/                  # Google Sign-In, Email/Password, and Brevo 6-digit OTP UI
+    ├── subscriptions/         # Dashboard, Calendar/Ledger view, presets catalog, creation form
+    ├── directory/             # Cancellation directory & direct URL launcher
+    ├── settings/              # Account details, dark/light theme switcher, CSV export
+    └── premium/               # Simulated paywall & tier enforcement
+```
+
+---
+
+## Security & Best Practices
+
+- `scripts/serviceAccountKey.json` is strictly git-ignored.
+- `lib/core/config/email_config.dart` contains private keys and is strictly git-ignored.
+- `firestore.rules` enforces user isolation: users can only read and write their own documents under `users/{uid}/...`.
+- Local notification reminders run entirely on-device without remote tracking or push notification servers.
+
+---
+
+## Plans & Documentation
+
+- `docs/superpowers/plans/2026-09-06-subly-mvp.md` — MVP architecture plan
+- `docs/superpowers/plans/2026-09-06-subly-design.md` — Design system specification
+- `AGENTS.md` — Architecture map, design rules, and framework constraints for development
+

@@ -64,7 +64,36 @@ class BrandTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors =
         Theme.of(context).extension<SublyColors>() ?? SublyColors.dark;
-    final asset = brandIconAssetFromName(name);
+    final icon = brandIconFromName(name);
+    final asset = icon == null ? brandIconAssetFromName(name) : null;
+
+    Widget child;
+    if (icon != null) {
+      child = Icon(
+        icon,
+        size: size * 0.58,
+        color: colors.inkInverse,
+      );
+    } else if (asset != null) {
+      child = SvgPicture.asset(
+        asset,
+        width: size * 0.54,
+        height: size * 0.54,
+        colorFilter: ColorFilter.mode(colors.inkInverse, BlendMode.srcIn),
+      );
+    } else {
+      child = Text(
+        brandInitial(name),
+        style: TextStyle(
+          color: colors.inkInverse,
+          fontSize: size * 0.52,
+          height: 1.0,
+          fontWeight: FontWeight.w700,
+          fontFamily: SublyTypography.displayFamily,
+        ),
+      );
+    }
+
     return Container(
       width: size,
       height: size,
@@ -73,24 +102,7 @@ class BrandTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(size * 0.3),
       ),
       alignment: Alignment.center,
-      padding: asset == null ? null : EdgeInsets.all(size * 0.16),
-      child: asset == null
-          ? Text(
-              brandInitial(name),
-              style: TextStyle(
-                color: colors.inkInverse,
-                fontSize: size * 0.52,
-                height: 1.0,
-                fontWeight: FontWeight.w700,
-                fontFamily: SublyTypography.displayFamily,
-              ),
-            )
-          : SvgPicture.asset(
-              asset,
-              width: size,
-              height: size,
-              colorFilter: ColorFilter.mode(colors.inkInverse, BlendMode.srcIn),
-            ),
+      child: child,
     );
   }
 }

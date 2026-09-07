@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:subtracker/core/brand/brand.dart';
 import 'package:subtracker/core/brand/brand_colors.dart';
 import 'package:subtracker/core/brand/brand_icons.dart';
 import 'package:subtracker/core/theme.dart';
@@ -119,12 +120,27 @@ void main() {
     expect(find.byType(BrandGlyphTile), findsOneWidget);
   });
 
-  testWidgets('BrandGlyphTile falls back to a lettermark without an asset',
+  testWidgets('BrandGlyphTile renders official Icon when name matches',
       (tester) async {
     await tester.pumpWidget(const MaterialApp(
-      home: BrandGlyphTile(color: Color(0xFF8C8C8C), name: "Bob's Gym"),
+      home: BrandGlyphTile(
+        name: 'Netflix',
+        color: Color(0xFFE50914),
+      ),
     ));
-    expect(find.byType(SvgPicture), findsNothing);
-    expect(find.text('B'), findsOneWidget);
+    expect(find.byType(Icon), findsOneWidget);
+    expect(find.byType(BrandGlyphTile), findsOneWidget);
+  });
+
+  testWidgets('BrandTile renders official Icon when name matches',
+      (tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: BrandTile(
+        name: 'Spotify',
+        color: Color(0xFF1DB954),
+      ),
+    ));
+    expect(find.byType(Icon), findsOneWidget);
+    expect(find.byType(BrandTile), findsOneWidget);
   });
 }

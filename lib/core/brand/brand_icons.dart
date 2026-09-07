@@ -129,12 +129,14 @@ String? brandIconAssetFromName(String name) {
 class BrandGlyphTile extends StatelessWidget {
   const BrandGlyphTile({
     super.key,
+    this.icon,
     this.asset,
     this.name,
     required this.color,
     this.size = 36,
   });
 
+  final IconData? icon;
   final String? asset;
   final String? name;
   final Color color;
@@ -144,6 +146,38 @@ class BrandGlyphTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors =
         Theme.of(context).extension<SublyColors>() ?? SublyColors.dark;
+    final resolvedIcon =
+        icon ?? (name != null ? brandIconFromName(name!) : null);
+    final resolvedAsset =
+        asset ?? (name != null ? brandIconAssetFromName(name!) : null);
+
+    Widget child;
+    if (resolvedIcon != null) {
+      child = Icon(
+        resolvedIcon,
+        size: size * 0.58,
+        color: colors.inkInverse,
+      );
+    } else if (resolvedAsset != null) {
+      child = SvgPicture.asset(
+        resolvedAsset,
+        width: size * 0.54,
+        height: size * 0.54,
+        colorFilter: ColorFilter.mode(colors.inkInverse, BlendMode.srcIn),
+      );
+    } else {
+      child = Text(
+        brandInitial(name ?? ''),
+        style: TextStyle(
+          color: colors.inkInverse,
+          fontSize: size * 0.52,
+          height: 1.0,
+          fontWeight: FontWeight.w700,
+          fontFamily: SublyTypography.displayFamily,
+        ),
+      );
+    }
+
     return Container(
       width: size,
       height: size,
@@ -152,23 +186,7 @@ class BrandGlyphTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(size * 0.3),
       ),
       alignment: Alignment.center,
-      child: asset != null
-          ? SvgPicture.asset(
-              asset!,
-              width: size * 0.54,
-              height: size * 0.54,
-              colorFilter: ColorFilter.mode(colors.inkInverse, BlendMode.srcIn),
-            )
-          : Text(
-              brandInitial(name ?? ''),
-              style: TextStyle(
-                color: colors.inkInverse,
-                fontSize: size * 0.52,
-                height: 1.0,
-                fontWeight: FontWeight.w700,
-                fontFamily: SublyTypography.displayFamily,
-              ),
-            ),
+      child: child,
     );
   }
 }

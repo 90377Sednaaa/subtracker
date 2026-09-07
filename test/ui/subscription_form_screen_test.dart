@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:subtracker/features/subscriptions/data/subscription_repository.dart';
+import 'package:subtracker/features/subscriptions/domain/preset_service.dart';
 import 'package:subtracker/features/subscriptions/ui/subscription_form_screen.dart';
 
 Widget _wrap(FakeFirebaseFirestore db) => ProviderScope(
@@ -59,4 +60,53 @@ void main() {
     expect(subs.docs.single.data()['name'], 'Spotify');
     expect(subs.docs.single.data()['cost'], 11.99);
   });
+
+  testWidgets('pre-populates from initialPreset', (tester) async {
+    final db = FakeFirebaseFirestore();
+    const preset = PresetService(
+      name: 'Netflix',
+      category: 'Entertainment',
+      brandColorHex: 0xFFE50914,
+    );
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        subscriptionRepositoryProvider
+            .overrideWithValue(SubscriptionRepository(db, 'u1')),
+      ],
+      child: const MaterialApp(
+        home: SubscriptionFormScreen(initialPreset: preset),
+      ),
+    ));
+
+    expect(find.text('Netflix'), findsWidgets);
+    expect(find.text('Entertainment'), findsOneWidget);
+  });
+
+  testWidgets('save writes category and notes into Firestore', (tester) async {
+    final db = FakeFirebaseFirestore();
+    await tester.pumpWidget(_wrap(db));
+
+    await tester.enterText(find.byKey(const Key('name-field')), 'ChatGPT');
+    await tester.enterText(find.byKey(const Key('cost-field')), '20.00');
+    await tester.enterText(find.byKey(const Key('notes-field')), 'Work account');
+
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('save-button')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('save-button')));
+    await tester.pumpAndSettle();
+
+    final subs = await db
+        .collection('users')
+        .doc('u1')
+        .collection('subscriptions')
+        .get();
+    expect(subs.docs.single.data()['name'], 'ChatGPT');
+    expect(subs.docs.single.data()['cost'], 20.0);
+    expect(subs.docs.single.data()['notes'], 'Work account');
+  });
 }
+

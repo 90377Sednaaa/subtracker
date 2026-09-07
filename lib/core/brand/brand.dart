@@ -102,7 +102,9 @@ class BrandTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors =
         Theme.of(context).extension<SublyColors>() ?? SublyColors.dark;
-    final icon = brandIconFromName(name);
+    final isPrime = name.toLowerCase().contains('prime');
+    final isCursor = name.toLowerCase().contains('cursor');
+    final icon = (isPrime || isCursor) ? null : brandIconFromName(name);
     final asset = icon == null ? brandIconAssetFromName(name) : null;
     final catIcon = (icon == null && asset == null && category != null)
         ? categoryIconFromName(category!)

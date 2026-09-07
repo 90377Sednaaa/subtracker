@@ -40,6 +40,7 @@ class _SubscriptionFormScreenState
   int _reminderDays = 3;
   String _category = 'Other';
   String? _brandColor;
+  bool _active = true;
   bool _loaded = true;
 
   @override
@@ -76,6 +77,7 @@ class _SubscriptionFormScreenState
       _category = sub.category;
       _notes.text = sub.notes;
       _brandColor = sub.brandColor;
+      _active = sub.active;
       _loaded = true;
     });
   }
@@ -109,6 +111,7 @@ class _SubscriptionFormScreenState
       category: _category,
       notes: _notes.text.trim(),
       brandColor: _brandColor,
+      active: _active,
     );
     try {
       final repo = ref.read(subscriptionRepositoryProvider);
@@ -773,6 +776,97 @@ class _SubscriptionFormScreenState
                       ],
                     ),
                   ),
+
+                  // Grouped Card 5: Subscription Status (Edit mode only)
+                  if (widget.existingId != null) ...[
+                    const SizedBox(height: SublySpace.s16),
+                    _buildGroupCard(
+                      colors: colors,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Subscription Status',
+                                    style: SublyTypography.body.copyWith(
+                                      color: colors.inkPrimary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    _active
+                                        ? 'Active · Included in total spend'
+                                        : 'Canceled · Inactive and excluded',
+                                    style: SublyTypography.caption.copyWith(
+                                      color: _active
+                                          ? const Color(0xFF10B981)
+                                          : colors.inkTertiary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Switch(
+                                key: const Key('active-switch'),
+                                value: _active,
+                                activeTrackColor: const Color(0xFF10B981),
+                                activeThumbColor: Colors.white,
+                                onChanged: (val) {
+                                  HapticFeedback.lightImpact();
+                                  setState(() => _active = val);
+                                },
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: SublySpace.s12),
+                          Divider(color: colors.hairline, height: 1),
+                          const SizedBox(height: SublySpace.s12),
+                          OutlinedButton.icon(
+                            key: const Key('toggle-status-button'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: _active
+                                  ? colors.statusRenewalSoon
+                                  : const Color(0xFF10B981),
+                              side: BorderSide(
+                                color: _active
+                                    ? colors.statusRenewalSoon.withValues(alpha: 0.5)
+                                    : const Color(0xFF10B981).withValues(alpha: 0.5),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(SublySpace.radiusField),
+                              ),
+                            ),
+                            icon: Icon(
+                              _active ? LucideIcons.ban : LucideIcons.rotate_cw,
+                              size: 16,
+                            ),
+                            label: Text(
+                              _active
+                                  ? 'Mark as Canceled'
+                                  : 'Reactivate Subscription',
+                            ),
+                            onPressed: () {
+                              HapticFeedback.mediumImpact();
+                              setState(() => _active = !_active);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(_active
+                                      ? 'Subscription marked as active'
+                                      : 'Subscription marked as canceled'),
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: SublySpace.s24),
 
                   // Bottom Save Button

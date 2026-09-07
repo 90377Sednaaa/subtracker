@@ -12,6 +12,7 @@ class SubscriptionDraft {
     this.brandColor,
     this.category = 'Other',
     this.notes = '',
+    this.active = true,
   });
 
   final String name;
@@ -21,6 +22,7 @@ class SubscriptionDraft {
   final DateTime nextChargeDate;
   final DateTime? trialEndsAt;
   final int reminderDaysBefore;
+  final bool active;
 
   /// Manual brand-color override (hex without '#'); null = auto-match.
   final String? brandColor;

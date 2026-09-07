@@ -114,30 +114,7 @@ void main() {
       tester.view.physicalSize = const Size(412, 892); // typical Android
       addTearDown(tester.view.reset);
 
-      const seeded = [
-        ('Netflix', 'Streaming', 'Account → Cancel plan'),
-        ('Spotify', 'Music', 'Account → Change or cancel'),
-        ('Disney+', 'Streaming', 'Account → Subscription'),
-        ('YouTube Premium', 'Streaming', 'Paid memberships → Manage'),
-        ('Amazon Prime', 'Shopping', 'Prime membership → End membership'),
-        ('Microsoft 365', 'Productivity', 'Services & subscriptions → Cancel'),
-        ('Adobe Creative Cloud', 'Productivity', 'Plans → Manage plan'),
-        ('Xbox Game Pass', 'Gaming', 'Subscriptions → Manage'),
-        ('Dropbox', 'Storage', 'Plan → Cancel plan'),
-        ('Canva Pro', 'Design', 'Billing & plans → Cancel'),
-        ('Audible', 'Books', 'Membership → Cancel'),
-        ('iCloud+', 'Storage', 'iCloud → Downgrade options'),
-      ];
       final db = FakeFirebaseFirestore();
-      for (var i = 0; i < seeded.length; i++) {
-        await db.collection('cancellation_links').add({
-          'name': seeded[i].$1,
-          'category': seeded[i].$2,
-          'notes': seeded[i].$3,
-          'cancelUrl': 'https://example.com/cancel',
-          'sortOrder': i,
-        });
-      }
 
       final key = GlobalKey();
       await tester.pumpWidget(RepaintBoundary(

@@ -70,16 +70,20 @@ class SubscriptionCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          subscription.trialing
-                              ? 'Trial ends ${dateFormat.format(subscription.trialEndsAt!)}'
-                              : 'Renews ${dateFormat.format(subscription.nextChargeDate)} · ${subscription.billingCycle.name}',
+                          !subscription.active
+                              ? 'Canceled'
+                              : subscription.trialing
+                                  ? 'Trial ends ${dateFormat.format(subscription.trialEndsAt!)}'
+                                  : 'Renews ${dateFormat.format(subscription.nextChargeDate)} · ${subscription.billingCycle.name}',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: SublyTypography.caption.copyWith(
                             fontSize: 12,
-                            color: subscription.trialing
-                                ? colors.statusTrial
-                                : colors.inkSecondary,
+                            color: !subscription.active
+                                ? colors.inkTertiary
+                                : subscription.trialing
+                                    ? colors.statusTrial
+                                    : colors.inkSecondary,
                           ),
                         ),
                       ],
@@ -91,7 +95,12 @@ class SubscriptionCard extends StatelessWidget {
                     key: Key('cost-${subscription.id}'),
                     style: SublyTypography.moneyRow.copyWith(
                       fontSize: 15,
-                      color: colors.inkPrimary,
+                      color: !subscription.active
+                          ? colors.inkTertiary
+                          : colors.inkPrimary,
+                      decoration: !subscription.active
+                          ? TextDecoration.lineThrough
+                          : null,
                     ),
                   ),
                 ],

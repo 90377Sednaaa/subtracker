@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:subtracker/core/brand/brand_icons.dart';
 import 'package:subtracker/features/subscriptions/data/subscription_repository.dart';
+import 'package:subtracker/features/subscriptions/domain/billing_cycle.dart';
 import 'package:subtracker/features/subscriptions/domain/preset_service.dart';
+import 'package:subtracker/features/subscriptions/domain/subscription_draft.dart';
 import 'package:subtracker/features/subscriptions/ui/subscription_form_screen.dart';
 
 Widget _wrap(FakeFirebaseFirestore db) => ProviderScope(
@@ -178,5 +180,61 @@ void main() {
         .get();
     expect(subs.docs, isEmpty);
   });
+
+  testWidgets('edit mode displays status card and toggles active', (tester) async {
+    final db = FakeFirebaseFirestore();
+    final repo = SubscriptionRepository(db, 'u1');
+    await repo.add(SubscriptionDraft(
+      name: 'Netflix',
+      cost: 15.49,
+      currency: 'USD',
+      billingCycle: BillingCycle.monthly,
+      nextChargeDate: DateTime(2026, 10, 1),
+      trialEndsAt: null,
+      reminderDaysBefore: 3,
+      active: true,
+    ));
+    final subId = (await repo.watchAll().first).single.id;
+
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        subscriptionRepositoryProvider.overrideWithValue(repo),
+      ],
+      child: MaterialApp(
+        home: SubscriptionFormScreen(existingId: subId),
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Subscription Status'), findsOneWidget);
+    expect(find.byKey(const Key('active-switch')), findsOneWidget);
+    expect(find.text('Mark as Canceled'), findsOneWidget);
+
+    // Tap Mark as Canceled
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('toggle-status-button')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('toggle-status-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Reactivate Subscription'), findsOneWidget);
+
+    // Save
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('save-button')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('save-button')));
+    await tester.pumpAndSettle();
+
+    final updated = await repo.get(subId);
+    expect(updated?.active, isFalse);
+  });
 }
+
 

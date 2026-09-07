@@ -99,4 +99,30 @@ void main() {
     await repo.delete(sub.id);
     expect((await repo.watchAll().first), isEmpty);
   });
+
+  test('update persists active status from draft', () async {
+    final db = FakeFirebaseFirestore();
+    final repo = SubscriptionRepository(db, 'u1');
+    await repo.add(draft('Netflix'));
+    final sub = (await repo.watchAll().first).single;
+    expect(sub.active, isTrue);
+
+    await repo.update(
+      sub.id,
+      SubscriptionDraft(
+        name: 'Netflix',
+        cost: 9.99,
+        currency: 'USD',
+        billingCycle: BillingCycle.monthly,
+        nextChargeDate: DateTime(2026, 10, 1),
+        trialEndsAt: null,
+        reminderDaysBefore: 3,
+        active: false,
+      ),
+    );
+
+    final updated = (await repo.watchAll().first).single;
+    expect(updated.active, isFalse);
+  });
 }
+

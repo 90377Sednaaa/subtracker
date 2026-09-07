@@ -165,6 +165,58 @@ void showSubscriptionActionsModal({
                 context.push('/subs/${sub.id}/edit');
               },
             ),
+            Divider(color: colors.hairline, height: 16),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: (sub.active
+                          ? colors.statusRenewalSoon
+                          : const Color(0xFF10B981))
+                      .withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  sub.active ? LucideIcons.ban : LucideIcons.rotate_cw,
+                  color: sub.active
+                      ? colors.statusRenewalSoon
+                      : const Color(0xFF10B981),
+                  size: 20,
+                ),
+              ),
+              title: Text(
+                sub.active ? 'Mark as Canceled' : 'Reactivate Subscription',
+                style: SublyTypography.body.copyWith(
+                  color: colors.inkPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              subtitle: Text(
+                sub.active
+                    ? 'Pause tracking and remove from total spend'
+                    : 'Resume tracking and renewal alerts',
+                style: SublyTypography.caption
+                    .copyWith(color: colors.inkTertiary),
+              ),
+              onTap: () async {
+                Navigator.of(ctx).pop();
+                HapticFeedback.mediumImpact();
+                await ref
+                    .read(subscriptionRepositoryProvider)
+                    .setActive(sub.id, !sub.active);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(sub.active
+                          ? 'Marked ${sub.name} as canceled'
+                          : 'Reactivated ${sub.name}'),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
+            ),
             const SizedBox(height: SublySpace.s8),
           ],
         ),

@@ -102,5 +102,64 @@ void main() {
 
     expect(find.byKey(const Key('empty-state')), findsOneWidget);
   });
+
+  testWidgets('Inactive filter chip filters for canceled subscriptions',
+      (tester) async {
+    final db = FakeFirebaseFirestore();
+    final repo = SubscriptionRepository(db, 'u1');
+    await db
+        .collection('users')
+        .doc('u1')
+        .set({'premium': true, 'email': 'a@b.c'});
+    await repo.add(SubscriptionDraft(
+      name: 'Netflix',
+      cost: 15.49,
+      currency: 'USD',
+      billingCycle: BillingCycle.monthly,
+      nextChargeDate: DateTime(2026, 10, 1),
+      trialEndsAt: null,
+      reminderDaysBefore: 3,
+      active: true,
+    ));
+    await repo.add(SubscriptionDraft(
+      name: 'Old Gym',
+      cost: 50.00,
+      currency: 'USD',
+      billingCycle: BillingCycle.monthly,
+      nextChargeDate: DateTime(2026, 10, 1),
+      trialEndsAt: null,
+      reminderDaysBefore: 3,
+      active: false,
+    ));
+
+    final container = ProviderContainer(overrides: [
+      authRepositoryProvider.overrideWithValue(_SignedInAuthRepository()),
+      subscriptionRepositoryProvider.overrideWithValue(repo),
+    ]);
+    addTearDown(container.dispose);
+
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: const MaterialApp(home: DashboardScreen()),
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Ledger'));
+    await tester.pumpAndSettle();
+
+    // Check filter chips exist
+    expect(find.text('All (2)'), findsOneWidget);
+    expect(find.text('Inactive (1)'), findsOneWidget);
+    expect(find.text('Netflix'), findsOneWidget);
+    expect(find.text('Old Gym'), findsOneWidget);
+
+    // Tap Inactive filter
+    await tester.tap(find.text('Inactive (1)'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Netflix'), findsNothing);
+    expect(find.text('Old Gym'), findsOneWidget);
+  });
 }
+
 

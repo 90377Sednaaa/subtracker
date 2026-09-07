@@ -15,6 +15,12 @@ class CancellationLinkRepository {
       .collection('cancellation_links')
       .orderBy('sortOrder')
       .snapshots()
-      .map((s) =>
-          s.docs.map((d) => CancellationLink.fromMap(d.id, d.data())).toList());
+      .map((s) {
+        if (s.docs.isEmpty) {
+          return kDefaultCancellationLinks;
+        }
+        return s.docs
+            .map((d) => CancellationLink.fromMap(d.id, d.data()))
+            .toList();
+      });
 }

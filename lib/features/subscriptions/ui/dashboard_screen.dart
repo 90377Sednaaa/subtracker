@@ -297,17 +297,20 @@ class _LedgerListState extends ConsumerState<_LedgerList> {
     switch (_activeFilter) {
       case 'Renewing Soon':
         return widget.list.where((s) {
+          if (!s.active) return false;
           final diff = s.nextChargeDate.difference(today).inDays;
           return diff >= 0 && diff <= 7;
         }).toList();
       case 'Monthly':
         return widget.list
-            .where((s) => s.billingCycle == BillingCycle.monthly)
+            .where((s) => s.active && s.billingCycle == BillingCycle.monthly)
             .toList();
       case 'Annual':
         return widget.list
-            .where((s) => s.billingCycle == BillingCycle.annual)
+            .where((s) => s.active && s.billingCycle == BillingCycle.annual)
             .toList();
+      case 'Inactive':
+        return widget.list.where((s) => !s.active).toList();
       case 'All':
       default:
         return widget.list;
@@ -318,16 +321,21 @@ class _LedgerListState extends ConsumerState<_LedgerList> {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     return widget.list.where((s) {
+      if (!s.active) return false;
       final diff = s.nextChargeDate.difference(today).inDays;
       return diff >= 0 && diff <= 7;
     }).length;
   }
 
-  int get _monthlyCount =>
-      widget.list.where((s) => s.billingCycle == BillingCycle.monthly).length;
+  int get _monthlyCount => widget.list
+      .where((s) => s.active && s.billingCycle == BillingCycle.monthly)
+      .length;
 
-  int get _annualCount =>
-      widget.list.where((s) => s.billingCycle == BillingCycle.annual).length;
+  int get _annualCount => widget.list
+      .where((s) => s.active && s.billingCycle == BillingCycle.annual)
+      .length;
+
+  int get _inactiveCount => widget.list.where((s) => !s.active).length;
 
   Future<void> _markPaid(BuildContext context, Subscription sub) async {
     HapticFeedback.mediumImpact();
@@ -345,6 +353,7 @@ class _LedgerListState extends ConsumerState<_LedgerList> {
             brandColor: sub.brandColor,
             category: sub.category,
             notes: sub.notes,
+            active: sub.active,
           ),
         );
     if (context.mounted) {
@@ -410,6 +419,7 @@ class _LedgerListState extends ConsumerState<_LedgerList> {
       ('Renewing Soon', _renewingSoonCount),
       ('Monthly', _monthlyCount),
       ('Annual', _annualCount),
+      ('Inactive', _inactiveCount),
     ];
 
     return SingleChildScrollView(

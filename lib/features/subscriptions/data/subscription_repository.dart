@@ -68,7 +68,7 @@ class SubscriptionRepository {
         'reminderDaysBefore': d.reminderDaysBefore,
         'category': d.category,
         'notes': d.notes,
-        'active': true,
+        'active': d.active,
         'brandColor': d.brandColor,
         'updatedAt': FieldValue.serverTimestamp(),
       };

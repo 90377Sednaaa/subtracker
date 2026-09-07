@@ -23,4 +23,12 @@ void main() {
     final links = await CancellationLinkRepository(db).watchAll().first;
     expect(links.map((l) => l.name).toList(), ['A-service', 'B-service']);
   });
+
+  test('returns kDefaultCancellationLinks when firestore collection is empty', () async {
+    final db = FakeFirebaseFirestore();
+    final links = await CancellationLinkRepository(db).watchAll().first;
+    expect(links.length, 35);
+    expect(links.first.name, 'Netflix');
+  });
 }
+

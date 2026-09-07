@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:subtracker/core/brand/brand_icons.dart';
 import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/subscriptions/domain/preset_service.dart';
 import 'package:subtracker/features/subscriptions/ui/subscription_catalog_screen.dart';
@@ -25,11 +26,23 @@ void main() {
     );
   }
 
-  testWidgets('renders Cancel button, Add Subscription title, and Custom card',
+  testWidgets(
+      'renders Cancel, Add Subscription, POPULAR SERVICES, ALL SERVICES, and Custom card',
       (tester) async {
     await tester.pumpWidget(buildScreen());
     expect(find.text('Cancel'), findsOneWidget);
     expect(find.text('Add Subscription'), findsOneWidget);
+    expect(find.text('POPULAR SERVICES'), findsOneWidget);
+    expect(find.byKey(const Key('preset-netflix-card')), findsOneWidget);
+    expect(find.byKey(const Key('preset-chatgpt-plus-card')), findsOneWidget);
+    expect(find.byType(BrandBadge), findsWidgets);
+
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('custom-service-card')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('ALL SERVICES'), findsOneWidget);
     expect(find.byKey(const Key('custom-service-card')), findsOneWidget);
     expect(find.text('Custom'), findsOneWidget);
   });
@@ -42,6 +55,13 @@ void main() {
       selected = val;
     }));
 
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('custom-service-card')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(find.byKey(const Key('custom-service-card')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('custom-service-card')));
     await tester.pumpAndSettle();
     expect(invoked, isTrue);
@@ -206,9 +226,32 @@ void main() {
       ),
     );
 
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('custom-service-card')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(find.byKey(const Key('custom-service-card')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('custom-service-card')));
     await tester.pumpAndSettle();
 
     expect(find.text('Config Screen: custom'), findsOneWidget);
   });
+
+  testWidgets('searching hides POPULAR SERVICES and ALL SERVICES headers',
+      (tester) async {
+    await tester.pumpWidget(buildScreen());
+    expect(find.text('POPULAR SERVICES'), findsOneWidget);
+
+    await tester.enterText(
+        find.byKey(const Key('catalog-search-field')), 'Spot');
+    await tester.pumpAndSettle();
+
+    expect(find.text('POPULAR SERVICES'), findsNothing);
+    expect(find.text('ALL SERVICES'), findsNothing);
+    expect(find.text('Spotify'), findsOneWidget);
+    expect(find.text('Netflix'), findsNothing);
+  });
 }
+

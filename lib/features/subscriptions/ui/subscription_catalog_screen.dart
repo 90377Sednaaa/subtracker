@@ -80,22 +80,12 @@ class _SubscriptionCatalogScreenState
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: SublySpace.screenMargin,
-              vertical: SublySpace.s12,
-            ),
-            child: Text(
-              'ALL SERVICES',
-              style: SublyTypography.label.copyWith(
-                color: colors.inkTertiary,
-              ),
-            ),
-          ),
           Expanded(
-            child: filteredServices.isEmpty
-                ? _buildEmptyState(context, colors)
-                : _buildGrid(context, colors, filteredServices),
+            child: _query.isEmpty
+                ? _buildCatalogSections(context, colors)
+                : (filteredServices.isEmpty
+                    ? _buildEmptyState(context, colors)
+                    : _buildFilteredGrid(context, colors, filteredServices)),
           ),
           _buildBottomSearchBar(context, colors),
         ],
@@ -103,7 +93,98 @@ class _SubscriptionCatalogScreenState
     );
   }
 
-  Widget _buildGrid(
+  Widget _buildCatalogSections(BuildContext context, SublyColors colors) {
+    final popularServices = kPopularPresetServices;
+    final remainingServices =
+        kPresetServices.where((s) => !s.isPopular).toList()
+          ..sort((a, b) => a.name.compareTo(b.name));
+
+    return CustomScrollView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      slivers: [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              SublySpace.screenMargin,
+              SublySpace.s16,
+              SublySpace.screenMargin,
+              SublySpace.s12,
+            ),
+            child: Text(
+              'POPULAR SERVICES',
+              style: SublyTypography.label.copyWith(
+                color: colors.inkSecondary,
+              ),
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: SublySpace.screenMargin,
+          ),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.15,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final service = popularServices[index];
+                return _buildPresetCard(context, colors, service);
+              },
+              childCount: popularServices.length,
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              SublySpace.screenMargin,
+              SublySpace.s24,
+              SublySpace.screenMargin,
+              SublySpace.s12,
+            ),
+            child: Text(
+              'ALL SERVICES',
+              style: SublyTypography.label.copyWith(
+                color: colors.inkSecondary,
+              ),
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            SublySpace.screenMargin,
+            0,
+            SublySpace.screenMargin,
+            SublySpace.s16,
+          ),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.15,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                if (index == 0) {
+                  return _buildCustomCard(context, colors);
+                }
+                final service = remainingServices[index - 1];
+                return _buildPresetCard(context, colors, service);
+              },
+              childCount: remainingServices.length + 1,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilteredGrid(
     BuildContext context,
     SublyColors colors,
     List<PresetService> services,
@@ -111,7 +192,7 @@ class _SubscriptionCatalogScreenState
     return GridView.builder(
       padding: const EdgeInsets.symmetric(
         horizontal: SublySpace.screenMargin,
-        vertical: SublySpace.s8,
+        vertical: SublySpace.s12,
       ),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -120,12 +201,9 @@ class _SubscriptionCatalogScreenState
         mainAxisSpacing: 12,
         childAspectRatio: 1.15,
       ),
-      itemCount: services.length + 1,
+      itemCount: services.length,
       itemBuilder: (context, index) {
-        if (index == 0) {
-          return _buildCustomCard(context, colors);
-        }
-        final service = services[index - 1];
+        final service = services[index];
         return _buildPresetCard(context, colors, service);
       },
     );
@@ -201,23 +279,11 @@ class _SubscriptionCatalogScreenState
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: brandColor.withValues(alpha: 0.25),
-                      blurRadius: 16,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: BrandGlyphTile(
-                  asset: service.iconAsset,
-                  name: service.name,
-                  color: brandColor,
-                  size: 48,
-                ),
+              BrandBadge(
+                name: service.name,
+                asset: service.iconAsset,
+                color: brandColor,
+                size: 48,
               ),
               const SizedBox(height: SublySpace.s12),
               Padding(

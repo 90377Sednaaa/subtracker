@@ -113,6 +113,7 @@ class _SubscriptionCatalogScreenState
         horizontal: SublySpace.screenMargin,
         vertical: SublySpace.s8,
       ),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 12,

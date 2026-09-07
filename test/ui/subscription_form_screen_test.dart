@@ -59,6 +59,7 @@ void main() {
         .get();
     expect(subs.docs.single.data()['name'], 'Spotify');
     expect(subs.docs.single.data()['cost'], 11.99);
+    expect(subs.docs.single.data()['category'], isNotEmpty);
   });
 
   testWidgets('pre-populates from initialPreset', (tester) async {

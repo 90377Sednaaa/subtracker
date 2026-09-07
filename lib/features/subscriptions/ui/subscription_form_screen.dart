@@ -387,6 +387,11 @@ class _SubscriptionFormScreenState
                                 color: colors.inkSecondary,
                               ),
                             ),
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty) return 'Enter a cost';
+                              if (double.tryParse(v.trim()) == null) return 'Enter a valid number';
+                              return null;
+                            },
                           ),
                         ),
                         const SizedBox(width: SublySpace.s12),

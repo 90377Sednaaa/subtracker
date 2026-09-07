@@ -174,7 +174,10 @@ class _CalendarViewState extends State<CalendarView> {
         onTap: renewals.isEmpty ? null : () => _showDaySheet(renewals, dayNumber),
         child: Container(
           key: Key('cal-day-$dayNumber'),
-          padding: const EdgeInsets.all(SublySpace.s8),
+          padding: const EdgeInsets.symmetric(
+            horizontal: SublySpace.s4,
+            vertical: SublySpace.s4,
+          ),
           decoration: BoxDecoration(
             color: renewals.isEmpty ? colors.step1 : colors.step2,
             borderRadius: BorderRadius.circular(10),
@@ -195,7 +198,7 @@ class _CalendarViewState extends State<CalendarView> {
               ),
               if (renewals.isNotEmpty) ...[
                 const Spacer(),
-                _RenewalCluster(renewals: renewals),
+                RenewalCluster(renewals: renewals),
               ],
             ],
           ),
@@ -251,30 +254,94 @@ class _CalendarViewState extends State<CalendarView> {
   }
 }
 
-/// Up to three brand tiles plus a '+N' counter.
-class _RenewalCluster extends StatelessWidget {
-  const _RenewalCluster({required this.renewals});
+/// Overlapping avatar stack showing up to 3 brand marks, or 2 marks + '+N' counter.
+class RenewalCluster extends StatelessWidget {
+  const RenewalCluster({super.key, required this.renewals});
 
   final List<Subscription> renewals;
 
   @override
   Widget build(BuildContext context) {
+    if (renewals.isEmpty) return const SizedBox.shrink();
+
     final colors = context.sublyColors;
-    final shown = renewals.take(3);
-    final extra = renewals.length - shown.length;
-    return Row(
-      children: [
-        for (final sub in shown)
-          Padding(
-            padding: const EdgeInsets.only(right: 3),
-            child: BrandTile(
-                name: sub.name, color: brandColorFor(sub), size: 18),
-          ),
-        if (extra > 0)
-          Text('+$extra',
-              style: SublyTypography.caption
-                  .copyWith(color: colors.inkSecondary)),
-      ],
+    const double tileSize = 16.0;
+    const double step = 9.0;
+    const double borderW = 1.5;
+
+    final int total = renewals.length;
+    // Up to 3 renewals: show all (1, 2, or 3 icons).
+    // 4 or more renewals: show first 2 icons + '+N' badge.
+    final bool hasExtra = total > 3;
+    final int visibleIconCount = hasExtra ? 2 : total;
+    final int extraCount = total - visibleIconCount;
+
+    final int elementCount = visibleIconCount + (hasExtra ? 1 : 0);
+    final double totalWidth = tileSize + (elementCount - 1) * step;
+
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerLeft,
+      child: SizedBox(
+        width: totalWidth,
+        height: tileSize,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            for (int i = 0; i < visibleIconCount; i++)
+              Positioned(
+                left: i * step,
+                top: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius:
+                        BorderRadius.circular(tileSize * 0.3 + borderW),
+                    border: Border.all(
+                      color: colors.step2,
+                      width: borderW,
+                      strokeAlign: BorderSide.strokeAlignOutside,
+                    ),
+                  ),
+                  child: BrandTile(
+                    name: renewals[i].name,
+                    color: brandColorFor(renewals[i]),
+                    size: tileSize,
+                  ),
+                ),
+              ),
+            if (hasExtra)
+              Positioned(
+                left: visibleIconCount * step,
+                top: 0,
+                child: Container(
+                  width: tileSize,
+                  height: tileSize,
+                  decoration: BoxDecoration(
+                    color: colors.step3,
+                    borderRadius:
+                        BorderRadius.circular(tileSize * 0.3 + borderW),
+                    border: Border.all(
+                      color: colors.step2,
+                      width: borderW,
+                      strokeAlign: BorderSide.strokeAlignOutside,
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '+$extraCount',
+                    style: TextStyle(
+                      fontSize: 8.5,
+                      fontWeight: FontWeight.w700,
+                      color: colors.inkPrimary,
+                      height: 1.0,
+                      fontFamily: SublyTypography.displayFamily,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

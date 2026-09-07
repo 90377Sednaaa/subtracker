@@ -1,7 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:simple_icons/simple_icons.dart';
 import 'package:subtracker/core/brand/brand.dart';
+import 'package:subtracker/core/brand/brand_colors.dart';
 import 'package:subtracker/core/theme.dart';
+
+/// Authoritative mapping from normalized brand name keywords to official
+/// SimpleIcons and FontAwesomeIcons IconData glyphs.
+final brandIconTable = <String, IconData>{
+  'netflix': SimpleIcons.netflix,
+  'spotify': SimpleIcons.spotify,
+  'youtube': SimpleIcons.youtube,
+  'amazon': FontAwesomeIcons.amazon.data,
+  'prime': FontAwesomeIcons.amazon.data,
+  'microsoft': FontAwesomeIcons.microsoft.data,
+  'office': FontAwesomeIcons.microsoft.data,
+  'xbox': FontAwesomeIcons.xbox.data,
+  'game pass': FontAwesomeIcons.xbox.data,
+  'dropbox': SimpleIcons.dropbox,
+  'audible': SimpleIcons.audible,
+  'icloud': SimpleIcons.icloud,
+  'chatgpt': FontAwesomeIcons.openai.data,
+  'openai': FontAwesomeIcons.openai.data,
+  'claude': SimpleIcons.claude,
+  'anthropic': SimpleIcons.anthropic,
+  'cursor': SimpleIcons.cursor,
+  'github': SimpleIcons.github,
+  'copilot': SimpleIcons.githubcopilot,
+  'perplexity': SimpleIcons.perplexity,
+  'apple music': SimpleIcons.applemusic,
+  'apple tv': SimpleIcons.appletv,
+  'apple one': SimpleIcons.apple,
+  'apple': SimpleIcons.apple,
+  'max': SimpleIcons.max,
+  'hbo': SimpleIcons.hbo,
+  'crunchyroll': SimpleIcons.crunchyroll,
+  'twitch': SimpleIcons.twitch,
+  'google one': SimpleIcons.google,
+  'google drive': SimpleIcons.googledrive,
+  'google': SimpleIcons.google,
+  'notion': SimpleIcons.notion,
+  'figma': SimpleIcons.figma,
+  '1password': SimpleIcons.n1password,
+  'slack': FontAwesomeIcons.slack.data,
+  'playstation': SimpleIcons.playstation,
+  'ps plus': SimpleIcons.playstation,
+  'discord': SimpleIcons.discord,
+  'duolingo': SimpleIcons.duolingo,
+  'strava': SimpleIcons.strava,
+  'medium': SimpleIcons.medium,
+};
+
+/// Resolves the official brand IconData from a bare name: case-insensitive
+/// substring match, null when unknown.
+IconData? brandIconFromName(String name) {
+  final lowered = name.toLowerCase();
+  for (final entry in brandIconTable.entries) {
+    if (lowered.contains(entry.key)) return entry.value;
+  }
+  return null;
+}
 
 /// Vendored brand glyphs (SVG, single fill — they tint like the brand dots).
 /// Sources are noted in each file's header comment; keywords mirror

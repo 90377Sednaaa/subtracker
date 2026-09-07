@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/subscriptions/domain/subscription.dart';
 
 /// The one thread of chroma in the monochrome UI. Matching is
@@ -21,7 +22,48 @@ const brandColorTable = <String, int>{
   'canva': 0xFF00C4CC,
   'audible': 0xFFF8991C,
   'icloud': 0xFFA2AAAD,
+  'chatgpt': 0xFF10A37F,
+  'openai': 0xFF10A37F,
+  'claude': 0xFFD97757,
+  'anthropic': 0xFFD97757,
+  'cursor': 0xFF8B5CF6,
+  'github': 0xFF181717,
+  'copilot': 0xFF181717,
+  'perplexity': 0xFF20B2AA,
+  'midjourney': 0xFFFFFFFF,
+  'apple music': 0xFFFA243C,
+  'apple tv': 0xFF000000,
+  'apple one': 0xFF000000,
+  'apple': 0xFF000000,
+  'max': 0xFF002BE7,
+  'hbo': 0xFF002BE7,
+  'crunchyroll': 0xFFFF6600,
+  'twitch': 0xFF9146FF,
+  'google one': 0xFF4285F4,
+  'google drive': 0xFF34A853,
+  'google': 0xFF4285F4,
+  'notion': 0xFF000000,
+  'figma': 0xFFF24E1E,
+  '1password': 0xFF0A85EA,
+  'slack': 0xFF4A154B,
+  'playstation': 0xFF003791,
+  'ps plus': 0xFF003791,
+  'nintendo': 0xFFE60012,
+  'discord': 0xFF5865F2,
+  'duolingo': 0xFF58CC02,
+  'strava': 0xFFFC4C02,
+  'medium': 0xFF000000,
 };
+
+/// Resolves a contrast-safe color for brand glyphs rendered on dark surfaces.
+/// Very dark or black brands (luminance < 0.03, like Apple, GitHub, Notion)
+/// fall back to `colors.inkPrimary` (crisp white in dark mode).
+Color effectiveBrandGlyphColor(Color brandColor, SublyColors colors) {
+  if (brandColor.computeLuminance() < 0.03) {
+    return colors.inkPrimary;
+  }
+  return brandColor;
+}
 
 const categoryColorTable = <String, int>{
   'entertainment': 0xFFC96B6B,

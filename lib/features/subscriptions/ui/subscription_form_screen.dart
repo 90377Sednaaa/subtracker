@@ -220,33 +220,13 @@ class _SubscriptionFormScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Hero Brand Avatar with radial glow
+                  // Hero Brand Badge
                   Center(
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: RadialGradient(
-                              colors: [
-                                _activeBrandColor.withValues(alpha: 0.25),
-                                _activeBrandColor.withValues(alpha: 0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-                        BrandGlyphTile(
-                          size: 72,
-                          name: _name.text.isNotEmpty
-                              ? _name.text
-                              : (widget.initialPreset?.name ?? 'New'),
-                          color: _activeBrandColor,
-                          asset: _activeBrandIconAsset,
-                        ),
-                      ],
+                    child: BrandBadge(
+                      size: 72,
+                      name: _name.text,
+                      asset: _activeBrandIconAsset,
+                      color: _activeBrandColor,
                     ),
                   ),
                   const SizedBox(height: SublySpace.s24),
@@ -257,103 +237,193 @@ class _SubscriptionFormScreenState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        TextFormField(
-                          key: const Key('name-field'),
-                          controller: _name,
-                          decoration: InputDecoration(
-                            labelText: 'Service name',
-                            hintText: 'e.g. Netflix, Spotify',
-                            labelStyle: SublyTypography.body
-                                .copyWith(color: colors.inkSecondary),
-                            hintStyle: SublyTypography.body
-                                .copyWith(color: colors.inkTertiary),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: SublySpace.s4),
+                          child: Row(
+                            children: [
+                              Text(
+                                'Name',
+                                style: SublyTypography.body
+                                    .copyWith(color: colors.inkSecondary),
+                              ),
+                              const SizedBox(width: SublySpace.s16),
+                              Expanded(
+                                child: TextFormField(
+                                  key: const Key('name-field'),
+                                  controller: _name,
+                                  textAlign: TextAlign.end,
+                                  style: SublyTypography.body
+                                      .copyWith(color: colors.inkPrimary),
+                                  decoration: InputDecoration(
+                                    isDense: true,
+                                    border: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                    contentPadding: EdgeInsets.zero,
+                                    hintText: 'e.g. Netflix, Cursor',
+                                    hintStyle: SublyTypography.body
+                                        .copyWith(color: colors.inkTertiary),
+                                  ),
+                                  validator: (v) =>
+                                      v == null || v.trim().isEmpty
+                                          ? 'Enter a name'
+                                          : null,
+                                ),
+                              ),
+                            ],
                           ),
-                          style: SublyTypography.body
-                              .copyWith(color: colors.inkPrimary),
-                          validator: (v) =>
-                              v == null || v.trim().isEmpty ? 'Enter a name' : null,
-                        ),
-                        const SizedBox(height: SublySpace.s16),
-                        _SegmentedCycle(
-                          value: _cycle,
-                          onChanged: (c) => setState(() => _cycle = c),
-                        ),
-                        const SizedBox(height: SublySpace.s8),
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(
-                            widget.existingId == null
-                                ? 'Start date'
-                                : 'Next charge',
-                            style: SublyTypography.body
-                                .copyWith(color: colors.inkPrimary),
-                          ),
-                          subtitle: Text(
-                            dateFormat.format(_nextCharge),
-                            style: SublyTypography.caption
-                                .copyWith(color: colors.inkSecondary),
-                          ),
-                          trailing: Icon(
-                            LucideIcons.calendar,
-                            color: colors.inkSecondary,
-                          ),
-                          onTap: () async {
-                            final picked = await showDatePicker(
-                              context: context,
-                              initialDate: _nextCharge,
-                              firstDate: DateTime(2020),
-                              lastDate: DateTime.now()
-                                  .add(const Duration(days: 365 * 5)),
-                            );
-                            if (picked != null) {
-                              setState(() => _nextCharge = picked);
-                            }
-                          },
                         ),
                         Divider(height: 1, color: colors.hairline),
-                        SwitchListTile(
-                          key: const Key('trial-switch'),
-                          contentPadding: EdgeInsets.zero,
-                          value: _trialEnds != null,
-                          onChanged: (on) => setState(() => _trialEnds =
-                              on ? DateTime.now().add(const Duration(days: 30)) : null),
-                          title: Text(
-                            'Free trial',
-                            style: SublyTypography.body
-                                .copyWith(color: colors.inkPrimary),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: SublySpace.s8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                'Schedule',
+                                style: SublyTypography.body
+                                    .copyWith(color: colors.inkSecondary),
+                              ),
+                              const SizedBox(height: SublySpace.s8),
+                              _SegmentedCycle(
+                                value: _cycle,
+                                onChanged: (c) => setState(() => _cycle = c),
+                              ),
+                            ],
                           ),
-                          activeThumbColor: colors.inkPrimary,
+                        ),
+                        Divider(height: 1, color: colors.hairline),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: SublySpace.s8),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  widget.existingId == null
+                                      ? 'Start date'
+                                      : 'Next charge',
+                                  style: SublyTypography.body
+                                      .copyWith(color: colors.inkSecondary),
+                                ),
+                              ),
+                              const SizedBox(width: SublySpace.s8),
+                              GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () async {
+                                  final picked = await showDatePicker(
+                                    context: context,
+                                    initialDate: _nextCharge,
+                                    firstDate: DateTime(2020),
+                                    lastDate: DateTime.now()
+                                        .add(const Duration(days: 365 * 5)),
+                                  );
+                                  if (picked != null) {
+                                    setState(() => _nextCharge = picked);
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: colors.step2,
+                                    borderRadius: BorderRadius.circular(
+                                        SublySpace.radiusField),
+                                    border: Border.all(color: colors.hairline),
+                                  ),
+                                  child: Text(
+                                    dateFormat.format(_nextCharge),
+                                    style: SublyTypography.body.copyWith(
+                                      color: colors.inkPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Divider(height: 1, color: colors.hairline),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: SublySpace.s4),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Free trial',
+                                  style: SublyTypography.body
+                                      .copyWith(color: colors.inkSecondary),
+                                ),
+                              ),
+                              const SizedBox(width: SublySpace.s8),
+                              Switch(
+                                key: const Key('trial-switch'),
+                                value: _trialEnds != null,
+                                activeThumbColor: colors.inkPrimary,
+                                onChanged: (on) => setState(() => _trialEnds =
+                                    on
+                                        ? DateTime.now()
+                                            .add(const Duration(days: 30))
+                                        : null),
+                              ),
+                            ],
+                          ),
                         ),
                         if (_trialEnds != null) ...[
                           Divider(height: 1, color: colors.hairline),
-                          ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            title: Text(
-                              'Trial ends',
-                              style: SublyTypography.body
-                                  .copyWith(color: colors.statusTrial),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: SublySpace.s8),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Trial ends',
+                                    style: SublyTypography.body
+                                        .copyWith(color: colors.statusTrial),
+                                  ),
+                                ),
+                                const SizedBox(width: SublySpace.s8),
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () async {
+                                    final picked = await showDatePicker(
+                                      context: context,
+                                      initialDate: _trialEnds!,
+                                      firstDate: DateTime(2020),
+                                      lastDate: DateTime.now()
+                                          .add(const Duration(days: 365 * 2)),
+                                    );
+                                    if (picked != null) {
+                                      setState(() => _trialEnds = picked);
+                                    }
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: colors.step2,
+                                      borderRadius: BorderRadius.circular(
+                                          SublySpace.radiusField),
+                                      border:
+                                          Border.all(color: colors.hairline),
+                                    ),
+                                    child: Text(
+                                      dateFormat.format(_trialEnds!),
+                                      style: SublyTypography.body.copyWith(
+                                        color: colors.inkPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            subtitle: Text(
-                              dateFormat.format(_trialEnds!),
-                              style: SublyTypography.caption
-                                  .copyWith(color: colors.inkSecondary),
-                            ),
-                            trailing: Icon(
-                              LucideIcons.calendar,
-                              color: colors.inkSecondary,
-                            ),
-                            onTap: () async {
-                              final picked = await showDatePicker(
-                                context: context,
-                                initialDate: _trialEnds!,
-                                firstDate: DateTime(2020),
-                                lastDate: DateTime.now()
-                                    .add(const Duration(days: 365 * 2)),
-                              );
-                              if (picked != null) {
-                                setState(() => _trialEnds = picked);
-                              }
-                            },
                           ),
                         ],
                       ],
@@ -365,56 +435,83 @@ class _SubscriptionFormScreenState
                   _buildGroupCard(
                     colors: colors,
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Text(
+                          'Amount',
+                          style: SublyTypography.body
+                              .copyWith(color: colors.inkSecondary),
+                        ),
+                        const SizedBox(width: SublySpace.s16),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.step2,
+                            borderRadius: BorderRadius.circular(
+                                SublySpace.radiusField),
+                            border: Border.all(color: colors.hairline),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _currency,
+                              dropdownColor: colors.step2,
+                              isDense: true,
+                              icon: Icon(
+                                LucideIcons.chevron_down,
+                                size: 14,
+                                color: colors.inkSecondary,
+                              ),
+                              style: SublyTypography.body.copyWith(
+                                color: colors.inkPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              items: const ['USD', 'EUR', 'GBP', 'PHP', 'JPY']
+                                  .map((c) => DropdownMenuItem(
+                                      value: c, child: Text(c)))
+                                  .toList(),
+                              onChanged: (c) {
+                                if (c != null) {
+                                  setState(() => _currency = c);
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: SublySpace.s12),
                         Expanded(
                           child: TextFormField(
                             key: const Key('cost-field'),
                             controller: _cost,
                             keyboardType: const TextInputType.numberWithOptions(
                                 decimal: true),
+                            textAlign: TextAlign.end,
                             style: SublyTypography.moneyRow.copyWith(
-                              fontSize: 16,
+                              fontSize: 18,
                               color: colors.inkPrimary,
                             ),
                             decoration: InputDecoration(
-                              labelText: 'Cost per cycle',
-                              prefixText: '$_currency ',
-                              prefixStyle: SublyTypography.body.copyWith(
-                                color: colors.inkSecondary,
-                              ),
-                              labelStyle: SublyTypography.body.copyWith(
-                                color: colors.inkSecondary,
+                              isDense: true,
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              contentPadding: EdgeInsets.zero,
+                              hintText: '0.00',
+                              hintStyle: SublyTypography.moneyRow.copyWith(
+                                fontSize: 18,
+                                color: colors.inkTertiary,
                               ),
                             ),
                             validator: (v) {
-                              if (v == null || v.trim().isEmpty) return 'Enter a cost';
-                              if (double.tryParse(v.trim()) == null) return 'Enter a valid number';
+                              if (v == null || v.trim().isEmpty) {
+                                return 'Enter a cost';
+                              }
+                              if (double.tryParse(v.trim()) == null) {
+                                return 'Enter a valid number';
+                              }
                               return null;
                             },
-                          ),
-                        ),
-                        const SizedBox(width: SublySpace.s12),
-                        SizedBox(
-                          width: 112,
-                          child: DropdownButtonFormField<String>(
-                            isExpanded: true,
-                            initialValue: _currency,
-                            dropdownColor: colors.step2,
-                            style: SublyTypography.body.copyWith(
-                              color: colors.inkPrimary,
-                            ),
-                            items: const ['USD', 'EUR', 'GBP', 'PHP', 'JPY']
-                                .map((c) =>
-                                    DropdownMenuItem(value: c, child: Text(c)))
-                                .toList(),
-                            onChanged: (c) =>
-                                setState(() => _currency = c ?? _currency),
-                            decoration: InputDecoration(
-                              labelText: 'Currency',
-                              labelStyle: SublyTypography.body
-                                  .copyWith(color: colors.inkSecondary),
-                            ),
                           ),
                         ),
                       ],
@@ -428,59 +525,121 @@ class _SubscriptionFormScreenState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        DropdownButtonFormField<String>(
-                          initialValue: kSubscriptionCategories.contains(_category)
-                              ? _category
-                              : 'Other',
-                          dropdownColor: colors.step2,
-                          style: SublyTypography.body.copyWith(
-                            color: colors.inkPrimary,
-                          ),
-                          decoration: InputDecoration(
-                            labelText: 'Category',
-                            labelStyle: SublyTypography.body
-                                .copyWith(color: colors.inkSecondary),
-                          ),
-                          items: kSubscriptionCategories.map((cat) {
-                            return DropdownMenuItem<String>(
-                              value: cat,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: BoxDecoration(
-                                      color: _categoryDotColor(cat),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: SublySpace.s8),
-                                  Text(cat),
-                                ],
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: SublySpace.s4),
+                          child: Row(
+                            children: [
+                              Icon(
+                                LucideIcons.tag,
+                                size: 18,
+                                color: colors.inkSecondary,
                               ),
-                            );
-                          }).toList(),
-                          onChanged: (c) =>
-                              setState(() => _category = c ?? 'Other'),
-                        ),
-                        const SizedBox(height: SublySpace.s16),
-                        DropdownButtonFormField<int>(
-                          initialValue: _reminderDays,
-                          dropdownColor: colors.step2,
-                          style: SublyTypography.body.copyWith(
-                            color: colors.inkPrimary,
+                              const SizedBox(width: SublySpace.s8),
+                              Text(
+                                'Category',
+                                style: SublyTypography.body
+                                    .copyWith(color: colors.inkSecondary),
+                              ),
+                              const SizedBox(width: SublySpace.s8),
+                              Expanded(
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    isExpanded: true,
+                                    alignment: AlignmentDirectional.centerEnd,
+                                    value: kSubscriptionCategories.contains(_category)
+                                        ? _category
+                                        : 'Other',
+                                    dropdownColor: colors.step2,
+                                    isDense: true,
+                                    icon: Icon(
+                                      LucideIcons.chevron_down,
+                                      size: 14,
+                                      color: colors.inkSecondary,
+                                    ),
+                                    style: SublyTypography.body.copyWith(
+                                      color: colors.inkPrimary,
+                                    ),
+                                    items: kSubscriptionCategories.map((cat) {
+                                      return DropdownMenuItem<String>(
+                                        value: cat,
+                                        child: Align(
+                                          alignment: Alignment.centerRight,
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                width: 8,
+                                                height: 8,
+                                                decoration: BoxDecoration(
+                                                  color: _categoryDotColor(cat),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              ),
+                                              const SizedBox(width: SublySpace.s8),
+                                              Text(cat),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    onChanged: (c) =>
+                                        setState(() => _category = c ?? 'Other'),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          items: const [1, 3, 5, 7]
-                              .map((d) => DropdownMenuItem(
-                                  value: d, child: Text('$d day(s) before')))
-                              .toList(),
-                          onChanged: (d) =>
-                              setState(() => _reminderDays = d ?? 3),
-                          decoration: InputDecoration(
-                            labelText: 'Remind me',
-                            labelStyle: SublyTypography.body
-                                .copyWith(color: colors.inkSecondary),
+                        ),
+                        Divider(height: 1, color: colors.hairline),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: SublySpace.s4),
+                          child: Row(
+                            children: [
+                              Icon(
+                                LucideIcons.bell,
+                                size: 18,
+                                color: colors.inkSecondary,
+                              ),
+                              const SizedBox(width: SublySpace.s8),
+                              Text(
+                                'Remind me',
+                                style: SublyTypography.body
+                                    .copyWith(color: colors.inkSecondary),
+                              ),
+                              const SizedBox(width: SublySpace.s8),
+                              Expanded(
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<int>(
+                                    isExpanded: true,
+                                    alignment: AlignmentDirectional.centerEnd,
+                                    value: _reminderDays,
+                                    dropdownColor: colors.step2,
+                                    isDense: true,
+                                    icon: Icon(
+                                      LucideIcons.chevron_down,
+                                      size: 14,
+                                      color: colors.inkSecondary,
+                                    ),
+                                    style: SublyTypography.body.copyWith(
+                                      color: colors.inkPrimary,
+                                    ),
+                                    items: const [1, 3, 5, 7]
+                                        .map((d) => DropdownMenuItem(
+                                              value: d,
+                                              child: Align(
+                                                alignment: Alignment.centerRight,
+                                                child: Text('$d day(s) before'),
+                                              ),
+                                            ))
+                                        .toList(),
+                                    onChanged: (d) =>
+                                        setState(() => _reminderDays = d ?? 3),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -491,21 +650,34 @@ class _SubscriptionFormScreenState
                   // Grouped Card 4: Notes
                   _buildGroupCard(
                     colors: colors,
-                    child: TextFormField(
-                      key: const Key('notes-field'),
-                      controller: _notes,
-                      maxLines: 3,
-                      style: SublyTypography.body
-                          .copyWith(color: colors.inkPrimary),
-                      decoration: InputDecoration(
-                        labelText: 'Notes',
-                        hintText: 'Add notes, account email, or plan details',
-                        labelStyle: SublyTypography.body
-                            .copyWith(color: colors.inkSecondary),
-                        hintStyle: SublyTypography.body
-                            .copyWith(color: colors.inkTertiary),
-                        alignLabelWithHint: true,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Notes',
+                          style: SublyTypography.caption
+                              .copyWith(color: colors.inkTertiary),
+                        ),
+                        const SizedBox(height: SublySpace.s8),
+                        TextFormField(
+                          key: const Key('notes-field'),
+                          controller: _notes,
+                          maxLines: 4,
+                          minLines: 2,
+                          style: SublyTypography.body
+                              .copyWith(color: colors.inkPrimary),
+                          decoration: InputDecoration(
+                            isDense: true,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            contentPadding: EdgeInsets.zero,
+                            hintText: 'Add plan details, account notes...',
+                            hintStyle: SublyTypography.body
+                                .copyWith(color: colors.inkTertiary),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: SublySpace.s24),

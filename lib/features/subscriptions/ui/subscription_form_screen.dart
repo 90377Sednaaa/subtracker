@@ -811,15 +811,27 @@ class _SubscriptionFormScreenState
                                   ),
                                 ],
                               ),
-                              Switch(
-                                key: const Key('active-switch'),
-                                value: _active,
-                                activeTrackColor: const Color(0xFF10B981),
-                                activeThumbColor: Colors.white,
-                                onChanged: (val) {
-                                  HapticFeedback.lightImpact();
-                                  setState(() => _active = val);
-                                },
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: (_active
+                                          ? const Color(0xFF10B981)
+                                          : colors.statusRenewalSoon)
+                                      .withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  _active ? 'Active' : 'Canceled',
+                                  style: SublyTypography.caption.copyWith(
+                                    color: _active
+                                        ? const Color(0xFF10B981)
+                                        : colors.statusRenewalSoon,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -834,11 +846,14 @@ class _SubscriptionFormScreenState
                                   : const Color(0xFF10B981),
                               side: BorderSide(
                                 color: _active
-                                    ? colors.statusRenewalSoon.withValues(alpha: 0.5)
-                                    : const Color(0xFF10B981).withValues(alpha: 0.5),
+                                    ? colors.statusRenewalSoon
+                                        .withValues(alpha: 0.5)
+                                    : const Color(0xFF10B981)
+                                        .withValues(alpha: 0.5),
                               ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(SublySpace.radiusField),
+                                borderRadius: BorderRadius.circular(
+                                    SublySpace.radiusField),
                               ),
                             ),
                             icon: Icon(
@@ -853,14 +868,6 @@ class _SubscriptionFormScreenState
                             onPressed: () {
                               HapticFeedback.mediumImpact();
                               setState(() => _active = !_active);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(_active
-                                      ? 'Subscription marked as active'
-                                      : 'Subscription marked as canceled'),
-                                  duration: const Duration(seconds: 2),
-                                ),
-                              );
                             },
                           ),
                         ],

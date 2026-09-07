@@ -207,7 +207,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Subscription Status'), findsOneWidget);
-    expect(find.byKey(const Key('active-switch')), findsOneWidget);
+    expect(find.text('Active'), findsOneWidget);
     expect(find.text('Mark as Canceled'), findsOneWidget);
 
     // Tap Mark as Canceled

@@ -25,4 +25,25 @@ void main() {
     expect(netflix.matchesQuery('FLIX'), isTrue);
     expect(netflix.matchesQuery('xyz123'), isFalse);
   });
+
+  test('kPresetServices contains 35+ services and popular presets flagged', () {
+    expect(kPresetServices.length, greaterThanOrEqualTo(35));
+    final popular = kPresetServices.where((s) => s.isPopular).toList();
+    expect(popular.length, greaterThanOrEqualTo(6));
+    expect(popular.any((s) => s.name == 'ChatGPT Plus'), isTrue);
+    expect(popular.any((s) => s.name == 'Netflix'), isTrue);
+    expect(popular.any((s) => s.name == 'Spotify'), isTrue);
+    expect(popular.any((s) => s.name == 'Cursor'), isTrue);
+    expect(popular.any((s) => s.name == 'Apple One'), isTrue);
+    expect(popular.any((s) => s.name == 'YouTube Premium'), isTrue);
+    expect(kPopularPresetServices, equals(popular));
+  });
+
+  test('all presets have non-null iconAsset and non-empty categories', () {
+    for (final preset in kPresetServices) {
+      expect(preset.iconAsset, isNotNull, reason: '${preset.name} missing iconAsset');
+      expect(preset.iconAsset!.endsWith('.svg'), isTrue);
+      expect(preset.category, isNotEmpty);
+    }
+  });
 }

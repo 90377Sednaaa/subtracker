@@ -50,7 +50,7 @@ class PaywallScreen extends ConsumerWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SublyMark(size: 18),
+                  const SublyLogoBadge(size: 18, radius: 2.0),
                   const SizedBox(width: SublySpace.s8),
                   Text('S U B L Y   P R E M I U M',
                       style: SublyTypography.label

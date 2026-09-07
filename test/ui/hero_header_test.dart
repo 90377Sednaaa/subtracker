@@ -22,6 +22,14 @@ class _SignedInAuthRepository implements AuthRepository {
   @override
   Future<void> signInWithGoogle() async {}
   @override
+  Future<void> signInWithEmailAndPassword(String email, String password) async {}
+  @override
+  Future<void> createUserWithEmailAndPassword(
+    String email,
+    String password, {
+    String? displayName,
+  }) async {}
+  @override
   Future<void> signOut() async {}
 }
 

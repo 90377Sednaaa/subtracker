@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:subtracker/core/brand/brand.dart';
 import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/auth/logic/auth_controller.dart';
 import 'package:subtracker/features/premium/logic/csv_export.dart';
@@ -19,10 +20,25 @@ class SettingsScreen extends ConsumerWidget {
     final isPremium = profile.value?.premium ?? false;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SublyLogoBadge(size: 24, radius: 2.0),
+            SizedBox(width: SublySpace.s8),
+            Flexible(
+              child: Text(
+                'Settings',
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
       body: ListView(
         children: [
           ListTile(
+            leading: const SublyLogoBadge(size: 36, radius: 2.0),
             title: Text(isPremium
                 ? 'Premium active'
                 : 'Free plan (5 subscription limit)'),

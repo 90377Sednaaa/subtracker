@@ -26,6 +26,42 @@ class SublyMark extends StatelessWidget {
   }
 }
 
+/// The Subly brand badge with inverted theme colors and subtle 1-2px rounded corners:
+/// - Dark theme: white background (#FFFFFF) with black "S" (#0A0A0C).
+/// - Light theme: black background (#0A0A0C) with white "S" (#FFFFFF).
+class SublyLogoBadge extends StatelessWidget {
+  const SublyLogoBadge({
+    super.key,
+    this.size = 32,
+    this.radius = 2.0,
+  });
+
+  final double size;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDark ? Colors.white : const Color(0xFF0A0A0C);
+    final markColor = isDark ? const Color(0xFF0A0A0C) : Colors.white;
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(radius),
+      ),
+      alignment: Alignment.center,
+      child: SublyMark(
+        size: size * 0.64,
+        color: markColor,
+      ),
+    );
+  }
+}
+
+
 /// The one thread of chroma in the monochrome UI: a small brand-color dot
 /// (Netflix red, Spotify green, ...) shown on ledger cards and strips.
 class BrandDot extends StatelessWidget {

@@ -19,6 +19,7 @@ import 'package:subtracker/features/subscriptions/domain/preset_service.dart';
 import 'package:subtracker/features/subscriptions/domain/subscription_draft.dart';
 import 'package:subtracker/features/subscriptions/ui/dashboard_screen.dart';
 import 'package:subtracker/features/subscriptions/ui/subscription_catalog_screen.dart';
+import 'package:subtracker/features/auth/ui/sign_in_screen.dart';
 import 'package:subtracker/features/subscriptions/ui/subscription_form_screen.dart';
 
 /// Visual QA: renders the real dashboard and the cancellation directory in
@@ -33,6 +34,14 @@ class _SignedInAuthRepository implements AuthRepository {
   User? currentUser() => _user;
   @override
   Future<void> signInWithGoogle() async {}
+  @override
+  Future<void> signInWithEmailAndPassword(String email, String password) async {}
+  @override
+  Future<void> createUserWithEmailAndPassword(
+    String email,
+    String password, {
+    String? displayName,
+  }) async {}
   @override
   Future<void> signOut() async {}
 }
@@ -231,6 +240,100 @@ void main() {
       });
       expect(
         File('build/design-screenshots/form-${brightness.name}.png')
+            .lengthSync(),
+        greaterThan(5000),
+      );
+    });
+
+    testWidgets('signin screenshot — ${brightness.name}', (tester) async {
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(412, 892);
+      addTearDown(tester.view.reset);
+
+      final key = GlobalKey();
+      await tester.pumpWidget(RepaintBoundary(
+        key: key,
+        child: ProviderScope(
+          overrides: [
+            authRepositoryProvider.overrideWithValue(_SignedInAuthRepository()),
+          ],
+          child: SubtrackerThemeApp(
+            brightness: brightness,
+            child: const SignInScreen(),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      final boundary =
+          key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+      await tester.runAsync(() async {
+        final image = await boundary.toImage(pixelRatio: 1.0);
+        final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+        Directory('build/design-screenshots').createSync(recursive: true);
+        File('build/design-screenshots/signin-${brightness.name}.png')
+            .writeAsBytesSync(bytes!.buffer.asUint8List());
+      });
+      expect(
+        File('build/design-screenshots/signin-${brightness.name}.png')
+            .lengthSync(),
+        greaterThan(5000),
+      );
+    });
+
+    testWidgets('otp screenshot — ${brightness.name}', (tester) async {
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(412, 892);
+      addTearDown(tester.view.reset);
+
+      final key = GlobalKey();
+      await tester.pumpWidget(RepaintBoundary(
+        key: key,
+        child: ProviderScope(
+          overrides: [
+            authRepositoryProvider.overrideWithValue(_SignedInAuthRepository()),
+          ],
+          child: SubtrackerThemeApp(
+            brightness: brightness,
+            child: const SignInScreen(),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('tab-create-account')));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+          find.byKey(const Key('auth-email')), 'alex@subly.app');
+      await tester.enterText(
+          find.byKey(const Key('auth-password')), 'secret123');
+      await tester.enterText(
+          find.byKey(const Key('auth-confirm-password')), 'secret123');
+
+      await tester.ensureVisible(find.byKey(const Key('auth-submit')));
+      await tester.tap(find.byKey(const Key('auth-submit')));
+      await tester.pump();
+
+      // Type 3 digits to display the interactive box state
+      await tester.enterText(find.byKey(const Key('otp-box-0')), '4');
+      await tester.pump();
+      await tester.enterText(find.byKey(const Key('otp-box-1')), '8');
+      await tester.pump();
+      await tester.enterText(find.byKey(const Key('otp-box-2')), '2');
+      await tester.pump();
+
+      final boundary =
+          key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+      await tester.runAsync(() async {
+        final image = await boundary.toImage(pixelRatio: 1.0);
+        final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+        Directory('build/design-screenshots').createSync(recursive: true);
+        File('build/design-screenshots/otp-${brightness.name}.png')
+            .writeAsBytesSync(bytes!.buffer.asUint8List());
+      });
+      expect(
+        File('build/design-screenshots/otp-${brightness.name}.png')
             .lengthSync(),
         greaterThan(5000),
       );

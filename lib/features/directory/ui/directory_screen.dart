@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:subtracker/core/brand/brand.dart';
 import 'package:subtracker/core/brand/brand_colors.dart';
 import 'package:subtracker/core/brand/brand_icons.dart';
 import 'package:subtracker/core/theme.dart';
@@ -15,7 +16,21 @@ class DirectoryScreen extends ConsumerWidget {
     final links = ref.watch(directoryStreamProvider);
     final colors = context.sublyColors;
     return Scaffold(
-      appBar: AppBar(title: const Text('Cancellation directory')),
+      appBar: AppBar(
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SublyLogoBadge(size: 24, radius: 2.0),
+            SizedBox(width: SublySpace.s8),
+            Flexible(
+              child: Text(
+                'Cancellation directory',
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
       body: links.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) =>

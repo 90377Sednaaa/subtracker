@@ -14,6 +14,12 @@ abstract class AuthRepository {
   Stream<User?> get authStateChanges;
   User? currentUser();
   Future<void> signInWithGoogle();
+  Future<void> signInWithEmailAndPassword(String email, String password);
+  Future<void> createUserWithEmailAndPassword(
+    String email,
+    String password, {
+    String? displayName,
+  });
   Future<void> signOut();
 }
 
@@ -52,6 +58,31 @@ class FirebaseAuthGoogleRepository implements AuthRepository {
       GoogleAuthProvider.credential(idToken: idToken),
     );
     // Android 13+ needs a runtime opt-in; ask once right after sign-in.
+    await LocalNotificationService.instance.requestPermissions();
+  }
+
+  @override
+  Future<void> signInWithEmailAndPassword(String email, String password) async {
+    await _auth.signInWithEmailAndPassword(
+      email: email.trim(),
+      password: password,
+    );
+    await LocalNotificationService.instance.requestPermissions();
+  }
+
+  @override
+  Future<void> createUserWithEmailAndPassword(
+    String email,
+    String password, {
+    String? displayName,
+  }) async {
+    final cred = await _auth.createUserWithEmailAndPassword(
+      email: email.trim(),
+      password: password,
+    );
+    if (displayName != null && displayName.trim().isNotEmpty) {
+      await cred.user?.updateDisplayName(displayName.trim());
+    }
     await LocalNotificationService.instance.requestPermissions();
   }
 

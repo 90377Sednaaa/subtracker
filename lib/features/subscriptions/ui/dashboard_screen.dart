@@ -4,6 +4,7 @@ import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:subtracker/core/brand/brand.dart';
 import 'package:subtracker/core/theme.dart';
 import 'package:subtracker/features/auth/logic/auth_controller.dart';
 import 'package:subtracker/features/subscriptions/domain/subscription.dart';
@@ -28,7 +29,21 @@ class DashboardScreen extends ConsumerWidget {
     final view = ref.watch(dashboardViewProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Subly'), actions: [
+      appBar: AppBar(
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SublyLogoBadge(size: 24, radius: 2.0),
+            SizedBox(width: SublySpace.s8),
+            Flexible(
+              child: Text(
+                'Subly',
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        actions: [
         IconButton(
           icon: const Icon(LucideIcons.link_2),
           tooltip: 'Cancellation directory',

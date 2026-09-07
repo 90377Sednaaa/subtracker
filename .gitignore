@@ -50,3 +50,7 @@ app.*.map.json
 
 scripts/serviceAccountKey.json
 scripts/node_modules/
+
+# Local email configuration and credentials
+lib/core/config/email_config.dart
+

@@ -21,6 +21,11 @@ flutter run -d android     # run on device/emulator
 
 Work follows strict TDD: write the failing test, run it to confirm it fails, implement, run to green, then commit. Conventional Commits (`feat:`, `test:`, `chore:`, `docs:`). Alignment-sensitive UI gets geometry assertions (see `test/ui/hero_header_test.dart`, `test/ui/ledger_card_test.dart`) — if you move layout, move the assertions.
 
+## Agent Guidelines
+
+- If the task is simple, don't use the superpowers skill (proceed directly without brainstorming or writing-plans workflows).
+
+
 ## Architecture
 
 Three-layer (UI → Logic → Data), Riverpod 3-wired:
@@ -75,3 +80,5 @@ lib/
 - **Free tier = 5 active subscriptions**, enforced client-side in `SubscriptionRepository.add` (throws `LimitReachedException` → form routes to `/paywall`). Premium is a **simulated** `premium: bool` on the user doc — no real billing.
 - **Firestore security rules (`firestore.rules`) are part of the deliverable**, never left in test mode.
 - `scripts/serviceAccountKey.json` must **never** be committed (git-ignored).
+- `lib/core/config/email_config.dart` must **never** be committed (git-ignored; copy from `email_config.example.dart`).
+

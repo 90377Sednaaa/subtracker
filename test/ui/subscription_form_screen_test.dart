@@ -2,6 +2,7 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:subtracker/core/brand/brand_icons.dart';
 import 'package:subtracker/features/subscriptions/data/subscription_repository.dart';
 import 'package:subtracker/features/subscriptions/domain/billing_cycle.dart';
@@ -234,6 +235,141 @@ void main() {
 
     final updated = await repo.get(subId);
     expect(updated?.active, isFalse);
+  });
+
+  testWidgets('form validation displays dedicated error rows with alert icons',
+      (tester) async {
+    final db = FakeFirebaseFirestore();
+    await tester.pumpWidget(_wrap(db));
+
+    // Scroll to save button and tap
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('save-button')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('save-button')));
+    await tester.pumpAndSettle();
+
+    // Scroll back to top to check error rows
+    await tester.scrollUntilVisible(
+      find.text('Amount'),
+      -200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Enter a name'), findsOneWidget);
+    expect(find.text('Enter a cost'), findsOneWidget);
+    expect(find.byIcon(LucideIcons.circle_alert), findsNWidgets(2));
+  });
+
+  testWidgets(
+      'cost validation is reactive: typing valid cost clears error immediately',
+      (tester) async {
+    final db = FakeFirebaseFirestore();
+    await tester.pumpWidget(_wrap(db));
+
+    // Tap save button to trigger validation
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('save-button')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('save-button')));
+    await tester.pumpAndSettle();
+
+    // Scroll back up so Amount card is visible
+    await tester.scrollUntilVisible(
+      find.text('Amount'),
+      -200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Enter a cost'), findsOneWidget);
+
+    // Enter valid cost '11' — error MUST immediately clear without re-tapping save
+    await tester.enterText(find.byKey(const Key('cost-field')), '11');
+    await tester.pump();
+    expect(find.text('Enter a cost'), findsNothing);
+
+    // Enter non-numeric cost 'abc' — error immediately updates to 'Enter a valid number'
+    await tester.enterText(find.byKey(const Key('cost-field')), 'abc');
+    await tester.pump();
+    expect(find.text('Enter a valid number'), findsOneWidget);
+
+    // Clear cost — error immediately updates to 'Enter a cost'
+    await tester.enterText(find.byKey(const Key('cost-field')), '');
+    await tester.pump();
+    expect(find.text('Enter a cost'), findsOneWidget);
+
+    // Fix cost to '15.99' — error clears
+    await tester.enterText(find.byKey(const Key('cost-field')), '15.99');
+    await tester.pump();
+    expect(find.text('Enter a cost'), findsNothing);
+    expect(find.text('Enter a valid number'), findsNothing);
+  });
+
+  testWidgets(
+      'name validation is reactive: typing name clears error immediately',
+      (tester) async {
+    final db = FakeFirebaseFirestore();
+    await tester.pumpWidget(_wrap(db));
+
+    // Tap save button to trigger validation
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('save-button')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('save-button')));
+    await tester.pumpAndSettle();
+
+    // Scroll back up so Name field is visible
+    await tester.scrollUntilVisible(
+      find.text('Name'),
+      -200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Enter a name'), findsOneWidget);
+
+    // Enter name — error immediately clears
+    await tester.enterText(find.byKey(const Key('name-field')), 'Netflix');
+    await tester.pump();
+    expect(find.text('Enter a name'), findsNothing);
+  });
+
+  testWidgets(
+      'error message is placed below the Amount row, not inside it',
+      (tester) async {
+    final db = FakeFirebaseFirestore();
+    await tester.pumpWidget(_wrap(db));
+
+    // Trigger validation
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('save-button')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('save-button')));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Amount'),
+      -200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    // The Amount label bottom must be strictly above the error row's top
+    final amountBottom = tester.getBottomLeft(find.text('Amount')).dy;
+    final errorTop = tester.getTopLeft(find.text('Enter a cost')).dy;
+    expect(errorTop, greaterThan(amountBottom));
   });
 }
 

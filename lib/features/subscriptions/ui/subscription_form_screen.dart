@@ -42,6 +42,7 @@ class _SubscriptionFormScreenState
   String? _brandColor;
   bool _active = true;
   bool _loaded = true;
+  bool _submitted = false;
 
   @override
   void initState() {
@@ -51,12 +52,32 @@ class _SubscriptionFormScreenState
       _category = widget.initialPreset!.category;
       _brandColor = hexToStore(widget.initialPreset!.brandColorHex);
     }
-    _name.addListener(_onNameChanged);
+    _name.addListener(_onFieldChanged);
+    _cost.addListener(_onFieldChanged);
     _loadExisting();
   }
 
-  void _onNameChanged() {
+  void _onFieldChanged() {
     setState(() {});
+  }
+
+  String? _validateName(String? v) {
+    final text = v?.trim() ?? '';
+    if (text.isEmpty) {
+      return 'Enter a name';
+    }
+    return null;
+  }
+
+  String? _validateCost(String? v) {
+    final text = v?.trim() ?? '';
+    if (text.isEmpty) {
+      return 'Enter a cost';
+    }
+    if (double.tryParse(text) == null) {
+      return 'Enter a valid number';
+    }
+    return null;
   }
 
   /// Edit mode: preload the stored subscription so the form opens filled.
@@ -84,21 +105,21 @@ class _SubscriptionFormScreenState
 
   @override
   void dispose() {
-    _name.removeListener(_onNameChanged);
+    _name.removeListener(_onFieldChanged);
     _name.dispose();
+    _cost.removeListener(_onFieldChanged);
     _cost.dispose();
     _notes.dispose();
     super.dispose();
   }
 
   Future<void> _save() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
-    final cost = double.tryParse(_cost.text.trim());
-    if (cost == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Enter a valid cost')));
-      return;
-    }
+    setState(() => _submitted = true);
+    final formValid = _formKey.currentState?.validate() ?? false;
+    final nameErr = _validateName(_name.text);
+    final costErr = _validateCost(_cost.text);
+    if (!formValid || nameErr != null || costErr != null) return;
+    final cost = double.parse(_cost.text.trim());
     final draft = SubscriptionDraft(
       name: _name.text.trim(),
       cost: cost,
@@ -157,12 +178,19 @@ class _SubscriptionFormScreenState
   Widget _buildGroupCard({
     required SublyColors colors,
     required Widget child,
+    bool hasError = false,
   }) {
-    return Material(
-      color: colors.step1,
-      shape: RoundedRectangleBorder(
+    return AnimatedContainer(
+      duration: SublyMotion.durQuick,
+      curve: SublyMotion.curveStandard,
+      decoration: BoxDecoration(
+        color: colors.step1,
         borderRadius: BorderRadius.circular(SublySpace.radiusCard),
-        side: BorderSide(color: colors.hairline),
+        border: Border.all(
+          color: hasError
+              ? colors.statusTrial.withValues(alpha: 0.65)
+              : colors.hairline,
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(SublySpace.s16),
@@ -171,10 +199,37 @@ class _SubscriptionFormScreenState
     );
   }
 
+  Widget _buildFieldError(String errorText, SublyColors colors) {
+    return Padding(
+      padding: const EdgeInsets.only(top: SublySpace.s8),
+      child: Row(
+        children: [
+          Icon(
+            LucideIcons.circle_alert,
+            size: 14,
+            color: colors.statusTrial,
+          ),
+          const SizedBox(width: SublySpace.s8),
+          Expanded(
+            child: Text(
+              errorText,
+              style: SublyTypography.caption.copyWith(
+                color: colors.statusTrial,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat.yMMMd();
     final colors = context.sublyColors;
+    final nameError = _submitted ? _validateName(_name.text) : null;
+    final costError = _submitted ? _validateCost(_cost.text) : null;
 
     return Scaffold(
       appBar: AppBar(
@@ -200,6 +255,9 @@ class _SubscriptionFormScreenState
           ? const Center(child: CircularProgressIndicator())
           : Form(
               key: _formKey,
+              autovalidateMode: _submitted
+                  ? AutovalidateMode.onUserInteraction
+                  : AutovalidateMode.disabled,
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(SublySpace.screenMargin),
                 child: Column(
@@ -225,43 +283,47 @@ class _SubscriptionFormScreenState
                   // Grouped Card 1: Details
                   _buildGroupCard(
                     colors: colors,
+                    hasError: nameError != null,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(
                               vertical: SublySpace.s12),
-                          child: Row(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Text(
-                                'Name',
-                                style: SublyTypography.body
-                                    .copyWith(color: colors.inkSecondary),
-                              ),
-                              const SizedBox(width: SublySpace.s16),
-                              Expanded(
-                                child: TextFormField(
-                                  key: const Key('name-field'),
-                                  controller: _name,
-                                  textAlign: TextAlign.end,
-                                  style: SublyTypography.body
-                                      .copyWith(color: colors.inkPrimary),
-                                  decoration: InputDecoration(
-                                    isDense: true,
-                                    border: InputBorder.none,
-                                    enabledBorder: InputBorder.none,
-                                    focusedBorder: InputBorder.none,
-                                    contentPadding: EdgeInsets.zero,
-                                    hintText: 'e.g. Netflix, Cursor',
-                                    hintStyle: SublyTypography.body
-                                        .copyWith(color: colors.inkTertiary),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Name',
+                                    style: SublyTypography.body
+                                        .copyWith(color: colors.inkSecondary),
                                   ),
-                                  validator: (v) =>
-                                      v == null || v.trim().isEmpty
-                                          ? 'Enter a name'
-                                          : null,
-                                ),
+                                  const SizedBox(width: SublySpace.s16),
+                                  Expanded(
+                                    child: TextFormField(
+                                      key: const Key('name-field'),
+                                      controller: _name,
+                                      textAlign: TextAlign.end,
+                                      style: SublyTypography.body
+                                          .copyWith(color: colors.inkPrimary),
+                                      decoration: InputDecoration(
+                                        isDense: true,
+                                        border: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        contentPadding: EdgeInsets.zero,
+                                        hintText: 'e.g. Netflix, Cursor',
+                                        hintStyle: SublyTypography.body
+                                            .copyWith(color: colors.inkTertiary),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
+                              if (nameError != null)
+                                _buildFieldError(nameError, colors),
                             ],
                           ),
                         ),
@@ -425,91 +487,90 @@ class _SubscriptionFormScreenState
                   // Grouped Card 2: Amount
                   _buildGroupCard(
                     colors: colors,
-                    child: Row(
+                    hasError: costError != null,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(
-                          'Amount',
-                          style: SublyTypography.body
-                              .copyWith(color: colors.inkSecondary),
-                        ),
-                        const SizedBox(width: SublySpace.s16),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: colors.step2,
-                            borderRadius: BorderRadius.circular(
-                                SublySpace.radiusField),
-                            border: Border.all(color: colors.hairline),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: _currency,
-                              dropdownColor: colors.step2,
-                              isDense: true,
-                              style: SublyTypography.body.copyWith(
-                                color: colors.inkPrimary,
-                              ),
-                              icon: Icon(
-                                LucideIcons.chevron_down,
-                                size: 14,
-                                color: colors.inkSecondary,
-                              ),
-                              items: const ['USD', 'EUR', 'GBP', 'PHP', 'JPY']
-                                  .contains(_currency)
-                                      ? const ['USD', 'EUR', 'GBP', 'PHP', 'JPY']
-                                          .map((c) => DropdownMenuItem(
-                                              value: c, child: Text(c)))
-                                          .toList()
-                                      : [...const ['USD', 'EUR', 'GBP', 'PHP', 'JPY'], _currency]
-                                          .map((c) => DropdownMenuItem(
-                                              value: c, child: Text(c)))
-                                          .toList(),
-                              onChanged: (c) {
-                                if (c != null) {
-                                  setState(() => _currency = c);
-                                }
-                              },
+                        Row(
+                          children: [
+                            Text(
+                              'Amount',
+                              style: SublyTypography.body
+                                  .copyWith(color: colors.inkSecondary),
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: SublySpace.s12),
-                        Expanded(
-                          child: TextFormField(
-                            key: const Key('cost-field'),
-                            controller: _cost,
-                            keyboardType: const TextInputType.numberWithOptions(
-                                decimal: true),
-                            textAlign: TextAlign.end,
-                            style: SublyTypography.moneyRow.copyWith(
-                              fontSize: 18,
-                              color: colors.inkPrimary,
-                            ),
-                            decoration: InputDecoration(
-                              isDense: true,
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              contentPadding: EdgeInsets.zero,
-                              hintText: '0.00',
-                              hintStyle: SublyTypography.moneyRow.copyWith(
-                                fontSize: 18,
-                                color: colors.inkTertiary,
+                            const SizedBox(width: SublySpace.s16),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colors.step2,
+                                borderRadius: BorderRadius.circular(
+                                    SublySpace.radiusField),
+                                border: Border.all(color: colors.hairline),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  value: _currency,
+                                  dropdownColor: colors.step2,
+                                  isDense: true,
+                                  style: SublyTypography.body.copyWith(
+                                    color: colors.inkPrimary,
+                                  ),
+                                  icon: Icon(
+                                    LucideIcons.chevron_down,
+                                    size: 14,
+                                    color: colors.inkSecondary,
+                                  ),
+                                  items: const ['USD', 'EUR', 'GBP', 'PHP', 'JPY']
+                                      .contains(_currency)
+                                          ? const ['USD', 'EUR', 'GBP', 'PHP', 'JPY']
+                                              .map((c) => DropdownMenuItem(
+                                                  value: c, child: Text(c)))
+                                              .toList()
+                                          : [...const ['USD', 'EUR', 'GBP', 'PHP', 'JPY'], _currency]
+                                              .map((c) => DropdownMenuItem(
+                                                  value: c, child: Text(c)))
+                                              .toList(),
+                                  onChanged: (c) {
+                                    if (c != null) {
+                                      setState(() => _currency = c);
+                                    }
+                                  },
+                                ),
                               ),
                             ),
-                            validator: (v) {
-                              if (v == null || v.trim().isEmpty) {
-                                return 'Enter a cost';
-                              }
-                              if (double.tryParse(v.trim()) == null) {
-                                return 'Enter a valid number';
-                              }
-                              return null;
-                            },
-                          ),
+                            const SizedBox(width: SublySpace.s12),
+                            Expanded(
+                              child: TextFormField(
+                                key: const Key('cost-field'),
+                                controller: _cost,
+                                keyboardType: const TextInputType.numberWithOptions(
+                                    decimal: true),
+                                textAlign: TextAlign.end,
+                                style: SublyTypography.moneyRow.copyWith(
+                                  fontSize: 18,
+                                  color: colors.inkPrimary,
+                                ),
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  contentPadding: EdgeInsets.zero,
+                                  hintText: '0.00',
+                                  hintStyle: SublyTypography.moneyRow.copyWith(
+                                    fontSize: 18,
+                                    color: colors.inkTertiary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
+                        if (costError != null)
+                          _buildFieldError(costError, colors),
                       ],
                     ),
                   ),

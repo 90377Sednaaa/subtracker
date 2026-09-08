@@ -240,5 +240,117 @@ void main() {
       expect(find.text('Mark Paid / Advance Cycle'), findsOneWidget);
       expect(find.text('Edit Subscription'), findsOneWidget);
     });
+
+    testWidgets('swiping left on calendar container navigates to next month',
+        (tester) async {
+      final now = DateTime(2026, 9, 7);
+      final subs = [_mockSub('Claude')];
+
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: buildSublyTheme(Brightness.dark),
+            home: Scaffold(
+              body: CalendarView(
+                subscriptions: subs,
+                monthlyTotalByCurrency: const {
+                  'USD': (monthly: 20.0, annual: 240.0)
+                },
+                now: now,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('September, 2026'), findsOneWidget);
+
+      // Drag left on calendar container
+      await tester.drag(
+        find.byKey(const Key('calendar-container')),
+        const Offset(-100, 0),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('October, 2026'), findsOneWidget);
+    });
+
+    testWidgets('swiping right on calendar container navigates to previous month',
+        (tester) async {
+      final now = DateTime(2026, 9, 7);
+      final subs = [_mockSub('Claude')];
+
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: buildSublyTheme(Brightness.dark),
+            home: Scaffold(
+              body: CalendarView(
+                subscriptions: subs,
+                monthlyTotalByCurrency: const {
+                  'USD': (monthly: 20.0, annual: 240.0)
+                },
+                now: now,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('September, 2026'), findsOneWidget);
+
+      // Drag right on calendar container
+      await tester.drag(
+        find.byKey(const Key('calendar-container')),
+        const Offset(100, 0),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('August, 2026'), findsOneWidget);
+    });
+
+    testWidgets('swiping on agenda does not navigate month',
+        (tester) async {
+      final now = DateTime(2026, 9, 7);
+      final subs = [_mockSub('Claude')];
+
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: buildSublyTheme(Brightness.dark),
+            home: Scaffold(
+              body: CalendarView(
+                subscriptions: subs,
+                monthlyTotalByCurrency: const {
+                  'USD': (monthly: 20.0, annual: 240.0)
+                },
+                now: now,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('September, 2026'), findsOneWidget);
+
+      // Scroll agenda into view, then drag on it
+      final agendaFinder = find.byKey(const Key('selected-day-agenda'));
+      await tester.scrollUntilVisible(
+        agendaFinder,
+        150,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+
+      await tester.drag(agendaFinder, const Offset(-100, 0));
+      await tester.pumpAndSettle();
+
+      // Month must NOT have changed
+      expect(find.text('September, 2026'), findsOneWidget);
+      expect(find.text('October, 2026'), findsNothing);
+    });
   });
 }

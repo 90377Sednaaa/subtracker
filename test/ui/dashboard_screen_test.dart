@@ -10,6 +10,7 @@ import 'package:subtracker/features/subscriptions/data/subscription_repository.d
 import 'package:subtracker/features/subscriptions/domain/billing_cycle.dart';
 import 'package:subtracker/features/subscriptions/domain/subscription_draft.dart';
 import 'package:subtracker/features/subscriptions/ui/dashboard_screen.dart';
+import 'package:subtracker/features/subscriptions/ui/hero_spend_header.dart';
 
 /// Signed-in auth so the dashboard's one-frame guard lets the list render.
 class _SignedInAuthRepository implements AuthRepository {
@@ -159,6 +160,50 @@ void main() {
 
     expect(find.text('Netflix'), findsNothing);
     expect(find.text('Old Gym'), findsOneWidget);
+  });
+
+  testWidgets(
+      'swiping in calendar container shifts month, swiping outside switches to ledger',
+      (tester) async {
+    final container = await _container(FakeFirebaseFirestore());
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: const MaterialApp(home: DashboardScreen()),
+    ));
+    await tester.pumpAndSettle();
+
+    // Initially in Calendar view
+    expect(find.byKey(const Key('calendar-view')), findsOneWidget);
+
+    // Swiping in calendar container shifts month, does not switch to ledger
+    await tester.drag(
+      find.byKey(const Key('calendar-container')),
+      const Offset(-100, 0),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('calendar-view')), findsOneWidget);
+
+    // Swiping outside calendar container (on the agenda card) switches page to Ledger
+    final agenda = find.byKey(const Key('selected-day-agenda'));
+    await tester.scrollUntilVisible(
+      agenda,
+      150,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.pumpAndSettle();
+
+    await tester.fling(agenda, const Offset(-400, 0), 1000);
+    await tester.pumpAndSettle();
+
+    // Should now be on Ledger view showing subscriptions
+    expect(find.text('Netflix'), findsOneWidget);
+
+    // Swiping back right on Ledger (outside dismissible cards) switches to Calendar view
+    await tester.fling(find.byType(HeroSpendHeader), const Offset(400, 0), 1000);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('calendar-view')), findsOneWidget);
   });
 }
 

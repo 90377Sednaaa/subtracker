@@ -34,6 +34,7 @@ class CalendarView extends ConsumerStatefulWidget {
 class _CalendarViewState extends ConsumerState<CalendarView> {
   int _monthOffset = 0;
   DateTime? _selectedDate;
+  double _dragDistance = 0.0;
 
   @override
   void initState() {
@@ -113,37 +114,13 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
               ),
             ],
           ),
-          const SizedBox(height: SublySpace.s16),
-          Row(
-            children: [
-              for (final w in _weekdays)
-                Expanded(
-                  child: Center(
-                    child: Text(w,
-                        style: SublyTypography.label
-                            .copyWith(color: colors.inkTertiary, fontSize: 11)),
-                  ),
-                ),
-            ],
-          ),
           const SizedBox(height: SublySpace.s8),
-          // Short screens scroll the grid; cells keep their fixed geometry.
           Expanded(
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onHorizontalDragEnd: (details) {
-                final velocity = details.primaryVelocity ?? 0;
-                if (velocity < -200 && _monthOffset < 12) {
-                  _shift(1);
-                } else if (velocity > 200 && _monthOffset > -12) {
-                  _shift(-1);
-                }
-              },
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildGrid(colors, month, byDay, today),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildCalendarContainer(colors, month, byDay, today),
                   const SizedBox(height: SublySpace.s16),
                   _buildSelectedDayAgenda(
                     colors,
@@ -160,9 +137,71 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
               ),
             ),
           ),
-        ),
-        const SizedBox(height: SublySpace.s16),
+          const SizedBox(height: SublySpace.s16),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCalendarContainer(
+    SublyColors colors,
+    DateTime month,
+    Map<int, List<Subscription>> byDay,
+    DateTime today,
+  ) {
+    return GestureDetector(
+      key: const Key('calendar-container'),
+      behavior: HitTestBehavior.opaque,
+      onHorizontalDragStart: (_) {
+        _dragDistance = 0.0;
+      },
+      onHorizontalDragUpdate: (details) {
+        _dragDistance += details.primaryDelta ?? 0.0;
+      },
+      onHorizontalDragEnd: (details) {
+        final velocity = details.primaryVelocity ?? 0.0;
+        if ((velocity < -200 || _dragDistance < -40) && _monthOffset < 12) {
+          HapticFeedback.lightImpact();
+          _shift(1);
+        } else if ((velocity > 200 || _dragDistance > 40) && _monthOffset > -12) {
+          HapticFeedback.lightImpact();
+          _shift(-1);
+        }
+        _dragDistance = 0.0;
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: colors.step1.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(SublySpace.radiusCard),
+          border: Border.all(color: colors.hairline),
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: SublySpace.s8,
+          vertical: SublySpace.s12,
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                for (final w in _weekdays)
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        w,
+                        style: SublyTypography.label.copyWith(
+                          color: colors.inkTertiary,
+                          fontSize: 11,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: SublySpace.s8),
+            _buildGrid(colors, month, byDay, today),
+          ],
+        ),
       ),
     );
   }
@@ -289,6 +328,7 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
       final monthName = DateFormat('MMMM yyyy').format(month);
 
       return Container(
+        key: const Key('selected-day-agenda'),
         width: double.infinity,
         padding: const EdgeInsets.all(SublySpace.s16),
         decoration: BoxDecoration(
@@ -372,6 +412,7 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
         dayRenewals.isNotEmpty ? dayRenewals.first.currency : 'USD';
 
     return Container(
+      key: const Key('selected-day-agenda'),
       width: double.infinity,
       padding: const EdgeInsets.all(SublySpace.s16),
       decoration: BoxDecoration(

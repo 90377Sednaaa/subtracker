@@ -82,7 +82,53 @@ class SettingsScreen extends ConsumerWidget {
             leading:
                 Icon(LucideIcons.log_out, size: 20, color: colors.inkSecondary),
             title: const Text('Sign out'),
-            onTap: () => ref.read(authRepositoryProvider).signOut(),
+            onTap: () async {
+              HapticFeedback.lightImpact();
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (dialogCtx) => AlertDialog(
+                  backgroundColor: colors.step2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(SublySpace.radiusCard),
+                    side: BorderSide(color: colors.hairline),
+                  ),
+                  title: Text(
+                    'Sign Out',
+                    style: SublyTypography.titleM
+                        .copyWith(color: colors.inkPrimary),
+                  ),
+                  content: Text(
+                    'Are you sure you want to sign out of your account?',
+                    style: SublyTypography.body
+                        .copyWith(color: colors.inkSecondary),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(dialogCtx).pop(false),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(color: colors.inkSecondary),
+                      ),
+                    ),
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: colors.ctaFill,
+                        foregroundColor: colors.inkInverse,
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(SublySpace.radiusField),
+                        ),
+                      ),
+                      onPressed: () => Navigator.of(dialogCtx).pop(true),
+                      child: const Text('Sign Out'),
+                    ),
+                  ],
+                ),
+              );
+              if (confirmed == true) {
+                await ref.read(authRepositoryProvider).signOut();
+              }
+            },
           ),
         ],
       ),

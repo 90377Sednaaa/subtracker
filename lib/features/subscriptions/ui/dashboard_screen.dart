@@ -141,7 +141,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 }
 
-/// Calendar | Ledger — the sliding segmented pill toggle with haptic feedback.
+/// Calendar | Ledger — minimalist typographic header switcher.
 class _ViewToggle extends ConsumerWidget {
   const _ViewToggle({required this.current});
 
@@ -154,126 +154,60 @@ class _ViewToggle extends ConsumerWidget {
 
     return Padding(
       key: const Key('view-toggle'),
-      padding: const EdgeInsets.symmetric(horizontal: SublySpace.screenMargin),
-      child: Container(
-        height: 44,
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: colors.step2,
-          borderRadius: BorderRadius.circular(SublySpace.radiusCard),
-          border: Border.all(color: colors.hairline),
-        ),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final pillWidth = (constraints.maxWidth - 4) / 2;
-            return Stack(
-              children: [
-                AnimatedAlign(
-                  duration: SublyMotion.durQuick,
-                  curve: SublyMotion.curveStandard,
-                  alignment: isCalendar
-                      ? Alignment.centerLeft
-                      : Alignment.centerRight,
-                  child: Container(
-                    width: pillWidth,
-                    height: double.infinity,
-                    decoration: BoxDecoration(
-                      color: colors.step3,
-                      borderRadius:
-                          BorderRadius.circular(SublySpace.radiusCard - 4),
-                      border: Border.all(color: colors.hairline),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.12),
-                          blurRadius: 4,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                  ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: SublySpace.screenMargin,
+        vertical: SublySpace.s4,
+      ),
+      child: Row(
+        children: [
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              HapticFeedback.lightImpact();
+              ref
+                  .read(dashboardViewProvider.notifier)
+                  .set(DashboardView.calendar);
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: SublySpace.s4),
+              child: AnimatedDefaultTextStyle(
+                duration: SublyMotion.durQuick,
+                curve: SublyMotion.curveStandard,
+                style: SublyTypography.titleL.copyWith(
+                  color: isCalendar ? colors.inkPrimary : colors.inkTertiary,
+                  fontWeight: isCalendar ? FontWeight.w700 : FontWeight.w500,
+                  fontSize: 24,
+                  letterSpacing: -0.4,
                 ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          ref
-                              .read(dashboardViewProvider.notifier)
-                              .set(DashboardView.calendar);
-                        },
-                        child: Center(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                LucideIcons.calendar,
-                                size: 16,
-                                color: isCalendar
-                                    ? colors.inkPrimary
-                                    : colors.inkTertiary,
-                              ),
-                              const SizedBox(width: SublySpace.s8),
-                              Text(
-                                'Calendar',
-                                style: SublyTypography.body.copyWith(
-                                  color: isCalendar
-                                      ? colors.inkPrimary
-                                      : colors.inkTertiary,
-                                  fontWeight: isCalendar
-                                      ? FontWeight.w600
-                                      : FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          ref
-                              .read(dashboardViewProvider.notifier)
-                              .set(DashboardView.ledger);
-                        },
-                        child: Center(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                LucideIcons.receipt,
-                                size: 16,
-                                color: !isCalendar
-                                    ? colors.inkPrimary
-                                    : colors.inkTertiary,
-                              ),
-                              const SizedBox(width: SublySpace.s8),
-                              Text(
-                                'Ledger',
-                                style: SublyTypography.body.copyWith(
-                                  color: !isCalendar
-                                      ? colors.inkPrimary
-                                      : colors.inkTertiary,
-                                  fontWeight: !isCalendar
-                                      ? FontWeight.w600
-                                      : FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                child: const Text('Calendar'),
+              ),
+            ),
+          ),
+          const SizedBox(width: SublySpace.s16),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              HapticFeedback.lightImpact();
+              ref
+                  .read(dashboardViewProvider.notifier)
+                  .set(DashboardView.ledger);
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: SublySpace.s4),
+              child: AnimatedDefaultTextStyle(
+                duration: SublyMotion.durQuick,
+                curve: SublyMotion.curveStandard,
+                style: SublyTypography.titleL.copyWith(
+                  color: !isCalendar ? colors.inkPrimary : colors.inkTertiary,
+                  fontWeight: !isCalendar ? FontWeight.w700 : FontWeight.w500,
+                  fontSize: 24,
+                  letterSpacing: -0.4,
                 ),
-              ],
-            );
-          },
-        ),
+                child: const Text('Ledger'),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

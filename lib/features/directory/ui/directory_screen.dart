@@ -48,19 +48,7 @@ class _DirectoryScreenState extends ConsumerState<DirectoryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SublyLogoBadge(size: 24, radius: 2.0),
-            SizedBox(width: SublySpace.s8),
-            Flexible(
-              child: Text(
-                'Cancellation directory',
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
+        title: const Text('Cancellation directory'),
       ),
       body: linksAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),

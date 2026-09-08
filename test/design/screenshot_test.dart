@@ -20,6 +20,7 @@ import 'package:subtracker/features/subscriptions/domain/subscription_draft.dart
 import 'package:subtracker/features/subscriptions/ui/dashboard_screen.dart';
 import 'package:subtracker/features/subscriptions/ui/subscription_catalog_screen.dart';
 import 'package:subtracker/features/auth/ui/sign_in_screen.dart';
+import 'package:subtracker/features/auth/data/email_service.dart';
 import 'package:subtracker/features/subscriptions/ui/subscription_form_screen.dart';
 
 /// Visual QA: renders the real dashboard and the cancellation directory in
@@ -44,6 +45,15 @@ class _SignedInAuthRepository implements AuthRepository {
   }) async {}
   @override
   Future<void> signOut() async {}
+}
+
+class _MockEmailService implements EmailVerificationService {
+  @override
+  Future<bool> sendOtpEmail({
+    required String recipientEmail,
+    required String code,
+  }) async =>
+      true;
 }
 
 void main() {
@@ -269,6 +279,7 @@ void main() {
         child: ProviderScope(
           overrides: [
             authRepositoryProvider.overrideWithValue(_SignedInAuthRepository()),
+            emailServiceProvider.overrideWithValue(_MockEmailService()),
           ],
           child: SubtrackerThemeApp(
             brightness: brightness,

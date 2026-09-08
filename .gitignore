@@ -54,3 +54,7 @@ scripts/node_modules/
 # Local email configuration and credentials
 lib/core/config/email_config.dart
 
+# Firebase client configurations (keep private backend credentials off Git)
+lib/firebase_options.dart
+android/app/google-services.json
+

@@ -93,5 +93,6 @@ lib/
 - **Firestore security rules (`firestore.rules`) are part of the deliverable**, never left in test mode.
 - `scripts/serviceAccountKey.json` must **never** be committed (git-ignored).
 - `lib/core/config/email_config.dart` must **never** be committed (git-ignored; copy from `email_config.example.dart`).
+- `lib/firebase_options.dart` and `android/app/google-services.json` must **never** be committed (git-ignored; copy from their `.example` templates).
 
 

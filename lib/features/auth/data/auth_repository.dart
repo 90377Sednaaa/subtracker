@@ -3,12 +3,14 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:subtracker/core/notifications/local_notification_service.dart';
 
 /// The project's OAuth 2.0 **Web client ID** — required by google_sign_in v7
-/// on Android to mint an idToken. One-time setup:
-///   Firebase console → Authentication → (Get started, enable Google) →
-///   Sign-in method → Google → Web SDK configuration → Web client ID.
-/// Paste the full `….apps.googleusercontent.com` value below.
-const String kGoogleServerClientId =
-    '187849793488-c8kdltd93iqnc1l3q22t3nsfis9rvr2r.apps.googleusercontent.com';
+/// on Android to mint an idToken. Can be supplied via:
+///   `--dart-define=GOOGLE_SERVER_CLIENT_ID=...`
+/// or configured in Firebase console → Authentication → Sign-in method → Google.
+const String kGoogleServerClientId = String.fromEnvironment(
+  'GOOGLE_SERVER_CLIENT_ID',
+  defaultValue:
+      '187849793488-c8kdltd93iqnc1l3q22t3nsfis9rvr2r.apps.googleusercontent.com',
+);
 
 abstract class AuthRepository {
   Stream<User?> get authStateChanges;

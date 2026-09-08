@@ -74,7 +74,39 @@ cd subtracker
 flutter pub get
 ```
 
-#### 3. Configure Email Verification (Optional / Recommended)
+#### 3. Configure Firebase Backend
+
+Subly requires a Firebase project for Authentication and Firestore. 
+
+##### Option A: Using FlutterFire CLI (Recommended)
+1. Install the FlutterFire CLI if you haven't already:
+   ```bash
+   dart pub global activate flutterfire_cli
+   ```
+2. Configure your Firebase project for the app:
+   ```bash
+   flutterfire configure
+   ```
+   Select your Firebase project and enable the Android platform. This automatically generates `lib/firebase_options.dart` and `android/app/google-services.json`.
+
+##### Option B: Manual Setup from Templates
+1. Copy the template files:
+   ```bash
+   # Windows PowerShell:
+   Copy-Item lib/firebase_options.example.dart lib/firebase_options.dart
+   Copy-Item android/app/google-services.json.example android/app/google-services.json
+
+   # macOS / Linux:
+   cp lib/firebase_options.example.dart lib/firebase_options.dart
+   cp android/app/google-services.json.example android/app/google-services.json
+   ```
+2. Fill in your project keys in `lib/firebase_options.dart` and `android/app/google-services.json`.
+3. For Google Sign-In, provide your Web Client ID via compile-time argument:
+   ```bash
+   flutter run -d android --dart-define=GOOGLE_SERVER_CLIENT_ID="your-web-client-id.apps.googleusercontent.com"
+   ```
+
+#### 4. Configure Email Verification (Optional / Recommended)
 
 Subly supports email OTP verification for manual account creation using Brevo (formerly Sendinblue).
 
@@ -101,7 +133,7 @@ Alternatively, you can provide the API key at runtime using `--dart-define`:
 flutter run -d android --dart-define=BREVO_API_KEY="your-api-key"
 ```
 
-#### 4. Launch an Android Emulator
+#### 5. Launch an Android Emulator
 
 List all configured Android emulators:
 ```bash
@@ -113,7 +145,7 @@ Launch your emulator (for example, `Medium_Phone`):
 flutter emulators --launch Medium_Phone
 ```
 
-#### 5. Run the Application
+#### 6. Run the Application
 
 Execute on your connected Android device or running emulator:
 
@@ -193,9 +225,10 @@ lib/
 
 ## Security & Best Practices
 
+- `lib/firebase_options.dart` and `android/app/google-services.json` are git-ignored to prevent backend quota/auth pollution. Example templates (`lib/firebase_options.example.dart`, `android/app/google-services.json.example`) are provided.
 - `scripts/serviceAccountKey.json` is strictly git-ignored.
-- `lib/core/config/email_config.dart` contains private keys and is strictly git-ignored.
-- `firestore.rules` enforces user isolation: users can only read and write their own documents under `users/{uid}/...`.
+- `lib/core/config/email_config.dart` contains private keys and is strictly git-ignored (template: `lib/core/config/email_config.example.dart`).
+- `firestore.rules` enforces strict user isolation: users can only read and write their own documents under `users/{uid}/...`.
 - Local notification reminders run entirely on-device without remote tracking or push notification servers.
 
 ---

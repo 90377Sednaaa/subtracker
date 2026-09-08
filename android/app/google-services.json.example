@@ -1,41 +1,41 @@
 {
   "project_info": {
-    "project_number": "187849793488",
-    "project_id": "subly-dev",
-    "storage_bucket": "subly-dev.firebasestorage.app"
+    "project_number": "000000000000",
+    "project_id": "your-project-id",
+    "storage_bucket": "your-project-id.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:187849793488:android:add8f0c767dd3116d623d5",
+        "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
         "android_client_info": {
           "package_name": "com.example.subtracker"
         }
       },
       "oauth_client": [
         {
-          "client_id": "187849793488-8r61mqpgv95eeuuvsa5kd5vjkqfbsoa1.apps.googleusercontent.com",
+          "client_id": "000000000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.subtracker",
-            "certificate_hash": "5c8decfd9a3cae93889b720a6322ae0d661895d1"
+            "certificate_hash": "0000000000000000000000000000000000000000"
           }
         },
         {
-          "client_id": "187849793488-c8kdltd93iqnc1l3q22t3nsfis9rvr2r.apps.googleusercontent.com",
+          "client_id": "000000000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBh9Fqed6k1KO7vK6u2YARg9glgPrBHzYg"
+          "current_key": "YOUR_FIREBASE_API_KEY"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "187849793488-c8kdltd93iqnc1l3q22t3nsfis9rvr2r.apps.googleusercontent.com",
+              "client_id": "000000000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

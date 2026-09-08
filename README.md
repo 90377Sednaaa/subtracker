@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/Flutter-3.47.0-02569B?logo=flutter" alt="Flutter" />
   <img src="https://img.shields.io/badge/Dart-3.13.0-0175C2?logo=dart" alt="Dart" />
   <img src="https://img.shields.io/badge/Target-Android%20Only-3DDC84?logo=android" alt="Android" />
-  <img src="https://img.shields.io/badge/Tests-140%2B%20Passing-brightgreen" alt="Tests" />
+  <img src="https://img.shields.io/badge/Tests-158%20Passing-brightgreen" alt="Tests" />
   <img src="https://img.shields.io/badge/License-MIT-blue" alt="License" />
 </p>
 
@@ -21,25 +21,31 @@
 
 ## Overview
 
-**Subly** is an Android-first subscription manager engineered around financial clarity and visual calm. It provides a distraction-free dark ledger for tracking recurring commitments, calculating per-currency monthly and annual burn rates, scheduling on-device notifications before trial and renewal deadlines, and accessing a seeded directory of one-tap cancellation links.
+**Subly** is an Android-first subscription manager engineered around financial clarity and visual calm. It provides an interactive dual-view dashboard (Calendar + Ledger) for tracking recurring commitments, calculating per-currency monthly and annual burn rates, scheduling on-device notifications before trial and renewal deadlines, and accessing a curated directory of one-tap cancellation links.
 
 ---
 
 ## Features
 
-- **Monochrome Dark Ledger**: Single token sheet (`lib/core/theme.dart`) driving deep obsidian surfaces, warm-white ink, hairline borders, and zero gratuitous shadows.
-- **Dynamic Theme Inversion**: The `SublyLogoBadge` dynamically adapts with theme inversion (dark mode: white badge with black "S"; light mode: black badge with white "S") with subtle 2px rounded corners.
+- **Dual-Mode Interactive Dashboard**:
+  - **Calendar View**: Interactive month-by-month grid with visual renewal clusters, brand mark badges, density counter caps, and current-day glow.
+  - **Ledger View**: Hero spend ring, 7-day upcoming renewal strip, and Quick Filters (`All`, `Renewing Soon`, `Monthly`, `Annual`, `Inactive`).
+- **Subscription Lifecycle & Actions**:
+  - Full active and canceled state tracking. Inactive items display with strikethrough cost and are excluded from spend calculations and notification schedules.
+  - 1-tap quick actions modal: Mark Paid / Advance Cycle (with safe month-end date clamping), Edit, Mark as Canceled / Reactivate, and Delete.
+- **Monochrome Dark & Light Design**: Built from a unified token sheet (`lib/core/theme.dart`) with deep obsidian surfaces, warm-white ink, hairline borders, and zero gratuitous shadows.
+- **Dynamic Theme Inversion**: The `SublyLogoBadge` dynamically adapts with theme inversion (dark mode: white badge with black "S"; light mode: black badge with white "S").
 - **Dual Authentication**:
-  - **Continue with Google**: One-tap authentication using the official 4-color Google "G" logo and Google Identity Services.
-  - **Manual Account Creation**: Email/password registration paired with a modern 6-box OTP verification flow powered by Brevo.
+  - **Continue with Google**: One-tap authentication using Google Identity Services.
+  - **Manual Account Creation**: Email/password registration paired with a modern 6-box OTP verification flow powered by Brevo SMTP (with zero-config local Demo Mode fallback).
 - **Accurate Date & Burn Calculations**:
   - Weekly, Monthly, and Annual cycles.
   - Safe month-end date clamping (e.g. Jan 31 &rarr; Feb 28/29).
-  - Isolated per-currency totals without arbitrary currency conversions.
-- **35+ Curated Presets**: Netflix, Spotify, ChatGPT, Claude, GitHub, Figma, Disney+, YouTube Premium, and more with official vector marks and hex brand accents.
+  - Isolated per-currency totals without arbitrary conversions.
+- **35+ Curated Presets**: Netflix, Spotify, ChatGPT, Claude, Midjourney, Cursor, Canva, Adobe CC, Prime, and more with official vector marks, brand accent colors, and live category/name search.
 - **Local On-Device Reminders**: Exact alarm notifications scheduled via `flutter_local_notifications` 3 days before renewal or trial expiration (no FCM or background server dependencies).
-- **Cancellation Directory**: Quick access to official unsubscribe and management portals.
-- **Simulated Premium Tier**: Free tier allows up to 5 subscriptions; exceeding the cap directs to the sleek paywall with CSV export.
+- **Cancellation Directory**: 35-service directory with direct unsubscribe links and instructions, automatically backed by built-in offline fallbacks.
+- **Simulated Premium Tier**: Free tier allows up to 5 subscriptions; exceeding the cap directs to the sleek paywall with CSV export capability.
 
 ---
 
@@ -183,7 +189,7 @@ The directory of cancellation links is stored in Firestore (`cancellation_links`
 Subly maintains comprehensive test coverage across domain logic, repositories, and UI widgets:
 
 ```bash
-# Run the entire test suite (140+ tests)
+# Run the entire test suite (158 tests)
 flutter test
 
 # Run static analysis (zero errors, zero warnings)
@@ -230,6 +236,15 @@ lib/
 - `lib/core/config/email_config.dart` contains private keys and is strictly git-ignored (template: `lib/core/config/email_config.example.dart`).
 - `firestore.rules` enforces strict user isolation: users can only read and write their own documents under `users/{uid}/...`.
 - Local notification reminders run entirely on-device without remote tracking or push notification servers.
+
+---
+
+## Academic Project Notice & Disclaimer
+
+This project is developed solely as an educational, non-commercial academic assignment:
+- **Trademarks & Logos:** All third-party product names, logos, brands, and registered trademarks displayed in this application (such as Netflix, Spotify, Canva, ChatGPT, etc.) are the property of their respective owners. Their inclusion is purely for academic prototyping and identification purposes under educational fair use, and does not imply any affiliation, sponsorship, or endorsement.
+- **Simulated Billing:** The premium upgrade flow and pricing tiers shown in the app are simulated software features designed to showcase UI/UX and full-stack entitlement state flows. No real financial transactions or billing occur.
+- **Cancellation Directory:** Cancellation links and instructional notes are compiled for general educational reference. Users are responsible for directly verifying cancellation terms with their respective service providers.
 
 ---
 

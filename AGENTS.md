@@ -4,7 +4,7 @@
 
 `subtracker` (working title **Subly**) — an Android-only subscription tracker with Google Sign-In and custom SMTP OTP authentication, a Firestore-backed dual-view dashboard (Calendar + Ledger), on-device trial/renewal reminders, a 35-service cancellation-links directory with automatic fallback merge, brand-curated preset catalog, and a simulated premium paywall.
 
-**Current state:** Fully implemented with 149 tests passing and 0 analyzer issues.
+**Current state:** Fully implemented with 158 tests passing and 0 analyzer issues.
 Features include:
 - **Auth**: Google Sign-In (`google_sign_in` v7) and Email OTP verification (Brevo/SMTP with 6-digit code).
 - **Dashboard**: Dual-mode — interactive Calendar view (renewal clusters, today glow, month navigation) and Ledger view with hero spend ring, 7-day renewal strip, and Quick Filters (`All`, `Renewing Soon`, `Monthly`, `Annual`, `Inactive`).
@@ -19,7 +19,7 @@ Features include:
 ```bash
 flutter pub get            # after changing pubspec.yaml
 flutter analyze            # MUST be clean before every commit (0 issues)
-flutter test               # full suite (149 tests, no emulator needed)
+flutter test               # full suite (158 tests, no emulator needed)
 flutter test test/domain/renewal_calculator_test.dart   # focused test
 flutter test test/design/screenshot_test.dart           # renders dashboard PNGs to build/design-screenshots/
 flutter test test/design/generate_app_icon_test.dart    # re-renders assets/branding/subly_icon_1024.png

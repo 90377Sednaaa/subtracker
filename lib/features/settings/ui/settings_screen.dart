@@ -17,6 +17,7 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.sublyColors;
     final profile = ref.watch(profileStreamProvider);
+    final subsAsync = ref.watch(subscriptionsStreamProvider);
     final isPremium = profile.value?.premium ?? false;
 
     return Scaffold(
@@ -56,19 +57,29 @@ class SettingsScreen extends ConsumerWidget {
               leading: Icon(LucideIcons.file_down,
                   size: 20, color: colors.inkSecondary),
               title: const Text('Export subscriptions (CSV)'),
-              onTap: () {
-                // Read the already-loaded stream state — .future would hang
-                // on Firestore's never-completing snapshots stream (riverpod 3).
-                final subs = ref.read(subscriptionsStreamProvider).value;
+              onTap: () async {
+                HapticFeedback.lightImpact();
+                final subs = subsAsync.value;
                 if (subs == null) {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                       content: Text('Still loading, try again')));
                   return;
                 }
-                Clipboard.setData(
-                    ClipboardData(text: subscriptionsToCsv(subs)));
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('CSV copied to clipboard')));
+                if (subs.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('No subscriptions to export')));
+                  return;
+                }
+                try {
+                  await ref
+                      .read(csvShareServiceProvider)
+                      .shareSubscriptionsCsv(subscriptions: subs);
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Export failed: $e')));
+                  }
+                }
               },
             ),
           SwitchListTile(
